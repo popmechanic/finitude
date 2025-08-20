@@ -881,6 +881,38 @@ function NeoContainer({ children, className = '', ...props }) {
   );
 }
 
+// Progress Component (adapted from neobrutalism library)
+function NeoProgress({ value, className = '', ...props }) {
+  return (
+    <div
+      className={`neo-progress ${className}`}
+      style={{
+        position: 'relative',
+        height: '16px',
+        width: '100%',
+        overflow: 'hidden',
+        borderRadius: 'var(--border-radius)',
+        border: 'var(--border-width) solid var(--color-border)',
+        backgroundColor: 'var(--color-bg-tertiary)'
+      }}
+      {...props}
+    >
+      <div
+        className="neo-progress-indicator"
+        style={{
+          height: '100%',
+          width: '100%',
+          flex: 1,
+          borderRight: value < 100 ? 'var(--border-width) solid var(--color-border)' : 'none',
+          backgroundColor: 'var(--salmon-pink)',
+          transition: 'all 0.3s ease',
+          transform: `translateX(-${100 - (value || 0)}%)`
+        }}
+      />
+    </div>
+  );
+}
+
 // Special Dice Component for refined aesthetic
 function NeoDice({ value, isRolling, onClick, disabled }) {
   const getBackgroundColor = () => {
@@ -1349,23 +1381,23 @@ export default function App() {
           </div>
 
           {/* Progress Bar */}
-          <div className="neo-flex neo-mb-xl" style={{ gap: 'var(--space-xs)' }}>
-            {steps.map((step, idx) => (
-              <div 
-                key={step.id} 
-                style={{
-                  flex: 1,
-                  height: '12px',
-                  backgroundColor: idx === currentStepIndex ? 'var(--salmon-pink)' : 
-                                   idx < currentStepIndex ? 'var(--moonstone)' : 'var(--lavender-blush)',
-                  border: '2px solid var(--color-border)',
-                  borderRadius: 'var(--border-radius)',
-                  boxShadow: idx === currentStepIndex ? '2px 2px 0px var(--ultra-violet)' : 'none',
-                  transition: 'all 0.3s ease',
-                  position: 'relative'
-                }} 
-              />
-            ))}
+          <div className="neo-mb-xl">
+            <NeoProgress 
+              value={((currentStepIndex + 1) / steps.length) * 100}
+              className="neo-mb-sm"
+            />
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              fontSize: '12px', 
+              color: 'var(--color-text-muted)',
+              fontFamily: 'var(--font-heading)',
+              fontWeight: '900',
+              textTransform: 'uppercase'
+            }}>
+              <span>Step {currentStepIndex + 1}</span>
+              <span>{steps.length} Total</span>
+            </div>
           </div>
 
           {/* Current Step Header */}
