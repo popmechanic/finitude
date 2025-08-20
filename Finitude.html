@@ -1,0 +1,898 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Generated App</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/html2canvas-pro@1.5.8/dist/html2canvas-pro.js"></script>
+    <!-- html2canvas-pro handles modern CSS color formats like OKLCH natively -->
+    <link rel="stylesheet" href="https://esm.sh/use-vibes@latest/dist/components/ImgGen.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+      #container {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+    <script>
+      const activeRequests = new Set();
+      let lastState = null;
+
+      function updateStreamingState() {
+        const currentState = activeRequests.size > 0;
+        if (currentState !== lastState) {
+          lastState = currentState;
+          window.parent.postMessage({ type: 'streaming', state: currentState }, '*');
+        }
+      }
+
+      const originalFetch = window.fetch;
+      window.fetch = (...args) => {
+        const reqInfo = args[0];
+        activeRequests.add(reqInfo);
+        updateStreamingState();
+
+        return originalFetch(...args).then((res) => {
+          if (!res.body) {
+            activeRequests.delete(reqInfo);
+            updateStreamingState();
+            return res;
+          }
+          const reader = res.body.getReader();
+          const stream = new ReadableStream({
+            start(controller) {
+              function pump() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    activeRequests.delete(reqInfo);
+                    updateStreamingState();
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  pump();
+                });
+              }
+              pump();
+            },
+          });
+          return new Response(stream, { headers: res.headers });
+        });
+      };
+
+      // Screenshot functionality
+      function cropToMaxAspectRatio(canvas, maxAspectRatio) {
+        const width = canvas.width;
+        const height = canvas.height;
+        const currentAspectRatio = height / width;
+
+        // If already within the max aspect ratio, return original canvas
+        if (currentAspectRatio <= maxAspectRatio) {
+          return canvas;
+        }
+
+        // Calculate new dimensions - crop from the bottom
+        const newHeight = width * maxAspectRatio;
+        const cropY = 0; // Start from top
+
+        // Create new canvas with cropped dimensions
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = width;
+        croppedCanvas.height = newHeight;
+
+        const ctx = croppedCanvas.getContext('2d');
+
+        // Draw cropped portion of original canvas
+        ctx.drawImage(
+          canvas,
+          0,
+          cropY,
+          width,
+          newHeight, // Source rectangle (crop from original)
+          0,
+          0,
+          width,
+          newHeight // Destination rectangle (full new canvas)
+        );
+
+        return croppedCanvas;
+      }
+
+      function captureScreenshot() {
+        // Check if html2canvas is loaded
+        if (typeof html2canvas === 'undefined') {
+          // Try to load html2canvas-pro dynamically
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/html2canvas-pro@1.5.8/dist/html2canvas-pro.js';
+          script.onload = () => {
+            captureScreenshotWithFallback();
+          };
+          script.onerror = (e) => {
+            window.parent.postMessage(
+              { type: 'screenshot-error', error: 'Failed to load html2canvas' },
+              '*'
+            );
+          };
+          document.head.appendChild(script);
+          return;
+        }
+
+        captureScreenshotWithFallback();
+      }
+
+      function captureScreenshotWithFallback() {
+        try {
+          // Let html2canvas-pro do its job with modern CSS
+          html2canvas(document.body, {
+            allowTaint: true,
+            useCORS: true,
+            scale: 1,
+            logging: false,
+          })
+            .then((canvas) => {
+              // Crop to max 3:1 aspect ratio (3 times taller than wide)
+              const croppedCanvas = cropToMaxAspectRatio(canvas, 3);
+              const dataURI = croppedCanvas.toDataURL();
+              window.parent.postMessage({ type: 'screenshot', data: dataURI }, '*');
+            })
+            .catch((err) => {
+              window.parent.postMessage(
+                {
+                  type: 'screenshot-error',
+                  error: 'Screenshot capture failed: ' + (err.message || 'Unknown error'),
+                },
+                '*'
+              );
+            });
+        } catch (err) {
+          window.parent.postMessage(
+            {
+              type: 'screenshot-error',
+              error: 'Unexpected error during screenshot capture',
+            },
+            '*'
+          );
+        }
+      }
+
+      function pageIsLoaded() {
+        window.parent.postMessage({ type: 'preview-ready' }, '*');
+        setTimeout(captureScreenshot, 2000);
+      }
+
+      // For rapid updates (optional)
+      let currentApp = null;
+      function updateAppComponent(code) {
+        try {
+          // Evaluate new component code
+          eval(code);
+
+          // If we implement rapid updates, we'll need to re-render here
+          if (currentApp && window.ReactDOM) {
+            // Re-render with new component
+          }
+
+          return true;
+        } catch (error) {
+          console.error('Failed to update component:', error);
+          return false;
+        }
+      }
+
+      // Event listeners
+      window.addEventListener('message', function (event) {
+        if (event.data) {
+          if (event.data.type === 'command') {
+            if (event.data.command === 'capture-screenshot') {
+              captureScreenshot();
+            }
+          } else if (event.data.type === 'callai-api-key' && event.data.key) {
+            window.CALLAI_API_KEY = event.data.key;
+          }
+        }
+      });
+
+      window.addEventListener('DOMContentLoaded', function () {
+        pageIsLoaded();
+      });
+
+      // Global error handlers to catch and log all errors
+      window.onerror = function (message, source, lineno, colno, error) {
+        const errorDetails = {
+          type: 'error',
+          message: message,
+          source: source,
+          lineno: lineno,
+          colno: colno,
+          stack: error?.stack || 'No stack trace available',
+          timestamp: new Date().toISOString(),
+        };
+        console.error('Uncaught error:', errorDetails);
+        // Send error to parent window
+        window.parent.postMessage({ type: 'iframe-error', error: errorDetails }, '*');
+        return false; // Let the default error handler run
+      };
+
+      // Handle unhandled promise rejections
+      window.addEventListener('unhandledrejection', function (event) {
+        const errorDetails = {
+          type: 'unhandledrejection',
+          reason: event.reason?.toString() || 'Unknown reason',
+          stack: event.reason?.stack || 'No stack trace available',
+          timestamp: new Date().toISOString(),
+        };
+        // Send rejection to parent window
+        window.parent.postMessage({ type: 'iframe-error', error: errorDetails }, '*');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      window.CALLAI_API_KEY = 'sk-vibes-proxy-managed';
+      window.SESSION_ID = 'fmejcgpq8ncqrglokd';
+      window.CALLAI_CHAT_URL = 'https://vibes-diy-api.com';
+      window.CALLAI_IMG_URL = 'https://vibes-diy-api.com';
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@19.1.1/es2022/react.mjs",
+          "react-dom": "https://esm.sh/react-dom@19.1.1/es2022/react-dom.mjs",
+          "react-dom/client": "https://esm.sh/react-dom@19.1.1/es2022/client.mjs",
+          "use-fireproof": "https://esm.sh/use-fireproof@0.23.0",
+          "call-ai": "https://esm.sh/call-ai",
+          "use-vibes": "https://esm.sh/use-vibes",
+          "three": "https://esm.sh/three"
+        }
+      }
+    </script>
+
+    <!-- Enhanced Babel and JSX error handling script -->
+    <script>
+      window.babelTransformError = null;
+
+      // 1. Patch console.error to capture JSX parse errors that are only logged to console
+      const originalConsoleError = console.error;
+      console.error = function (...args) {
+        const errorMsg = args.join(' ');
+
+        // Look for specific JSX parse errors that might not trigger other handlers
+        if (
+          errorMsg.includes('parse-error.ts') ||
+          (errorMsg.includes('SyntaxError') && errorMsg.includes('Unexpected token')) ||
+          errorMsg.includes('JSX')
+        ) {
+          // Extract line and position information if available
+          let lineInfo = '';
+          const lineMatch =
+            errorMsg.match(/(\d+):(\d+)/) || errorMsg.match(/line (\d+).+column (\d+)/);
+          if (lineMatch) {
+            lineInfo = ` at line ${lineMatch[1]}, column ${lineMatch[2]}`;
+          }
+
+          // Extract meaningful error message
+          let message = 'JSX Syntax Error';
+          if (errorMsg.includes('Unexpected token')) {
+            const tokenMatch = errorMsg.match(/Unexpected token[,:]?\s*([^,\n\)]+)/);
+            if (tokenMatch) {
+              message = `JSX Syntax Error: Unexpected token ${tokenMatch[1].trim()}`;
+            }
+          } else if (errorMsg.includes('expected')) {
+            const expectedMatch = errorMsg.match(/expected\s+([^,\n\)]+)/);
+            if (expectedMatch) {
+              message = `JSX Syntax Error: Expected ${expectedMatch[1].trim()}`;
+            }
+          }
+
+          const errorDetails = {
+            type: 'error',
+            message: `${message}${lineInfo}`,
+            source: 'jsx-parser',
+            stack: errorMsg,
+            timestamp: new Date().toISOString(),
+            errorType: 'SyntaxError',
+          };
+
+          // Only send if we haven't already reported an error
+          if (!window.babelTransformError) {
+            window.parent.postMessage({ type: 'iframe-error', error: errorDetails }, '*');
+            window.babelTransformError = errorDetails;
+          }
+        }
+
+        // Call original console.error
+        originalConsoleError.apply(console, args);
+      };
+
+      // 2. Patch Babel transform for errors caught during transformation
+      if (window.Babel && window.Babel.transform) {
+        const originalTransform = window.Babel.transform;
+        window.Babel.transform = function (code, options) {
+          try {
+            return originalTransform.call(this, code, options);
+          } catch (err) {
+            // Capture and format Babel error
+            const errorDetails = {
+              type: 'error',
+              message: `Babel Syntax Error: ${err.message || 'Invalid syntax'}`,
+              source: 'babel-transform',
+              stack: err.stack || '',
+              timestamp: new Date().toISOString(),
+              errorType: 'SyntaxError',
+            };
+            // Report error to parent
+            window.parent.postMessage({ type: 'iframe-error', error: errorDetails }, '*');
+            window.babelTransformError = errorDetails;
+            throw err;
+          }
+        };
+      }
+
+      // 3. Enhanced unhandled error handler specifically for syntax errors
+      window.addEventListener(
+        'error',
+        function (event) {
+          // Skip if we already caught the error elsewhere
+          if (window.babelTransformError) return;
+
+          // Focus on syntax errors and parse errors
+          if (
+            event.error?.stack?.includes('parse-error.ts') ||
+            event.message?.includes('SyntaxError') ||
+            (event.message === 'Script error.' && !event.filename)
+          ) {
+            let message = event.message;
+            if (message === 'Script error.') {
+              message = 'JSX Syntax Error: Unable to parse JSX code';
+            }
+
+            const errorDetails = {
+              type: 'error',
+              message: message,
+              source: event.filename || 'jsx-parser',
+              lineno: event.lineno || 0,
+              colno: event.colno || 0,
+              stack: event.error?.stack || '',
+              timestamp: new Date().toISOString(),
+              errorType: 'SyntaxError',
+            };
+
+            window.parent.postMessage({ type: 'iframe-error', error: errorDetails }, '*');
+            window.babelTransformError = errorDetails;
+          }
+        },
+        true
+      );
+    </script>
+
+    <script type="text/babel" data-type="module">
+      import ReactDOMClient from 'react-dom/client';
+
+      // App runs normally without our interference, but the iframe loads our script to modify use-fireproof
+      // prettier-ignore
+      import React, { useState, useEffect, useRef } from "react"
+import { callAI } from "call-ai"
+import { useFireproof } from "use-fireproof"
+
+export default function App() {
+  const { database, useLiveQuery } = useFireproof("finitude-enhanced")
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const [options, setOptions] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [rolling, setRolling] = useState(false)
+  const [diceValue, setDiceValue] = useState(null)
+  const [selectedIndex, setSelectedIndex] = useState(null)
+  const [vetoUsed, setVetoUsed] = useState(false)
+  const [selections, setSelections] = useState({})
+  const [rollHistory, setRollHistory] = useState([])
+  const [sessionSeed] = useState(Math.floor(Math.random() * 1000000))
+  const [sessionTimestamp] = useState(new Date().toISOString())
+  const [showResults, setShowResults] = useState(false)
+  const animationRef = useRef()
+  
+  const steps = [
+    { 
+      id: 'theme', 
+      name: 'Theme', 
+      description: 'Core emotional territory',
+      prompt: 'Generate minimal, understated themes that suggest emotional territory without being overwrought. Use simple, evocative phrases that leave room for interpretation. Examples: "second language", "borrowed time", "false spring", "exit interview", "muscle memory", "parallel parking", "dead letters", "test pattern". Keep them grounded and specific but not overly poetic. Avoid flowery language.'
+    },
+    { 
+      id: 'symbol', 
+      name: 'Symbol Pair', 
+      description: 'Two resonant images',
+      prompt: 'Create pairs of brief, evocative symbols joined by " + ". Use simple, broadly referential words that carry poetic weight without being precious. Examples: "Moths + Static", "Fever + Maps", "Bridges + Ash", "Windows + Tide", "Keys + Smoke", "Mirrors + Rain". Keep each word short and airy. Avoid overly dramatic or flowery choices - aim for quiet resonance.'
+    },
+    { 
+      id: 'mechanic', 
+      name: 'Mechanic', 
+      description: 'Musical DNA to borrow',
+      prompt: 'Name concrete music mechanics to borrow (rhythm patterns with BPM ranges, bass approaches, harmony concepts, voice techniques, texture ideas, or form structures). Be specific and practical.'
+    },
+    { 
+      id: 'form', 
+      name: 'Form', 
+      description: 'Song structure',
+      prompt: 'Provide compact, readable song forms like "V/C×3 + Bridge", "AABA", "Verse/Verse/Chorus/Verse/Outro". Keep notation clear and standard.'
+    },
+    { 
+      id: 'color', 
+      name: 'Color Mood', 
+      description: 'Emotional palette',
+      prompt: 'Generate color moods with context and hue (like "hospital green", "sunset amber", "midnight purple"). These should evoke specific emotional territories.'
+    },
+    { 
+      id: 'harmony', 
+      name: 'Harmony', 
+      description: 'Chord approach',
+      prompt: 'Suggest compact chord progressions or harmonic approaches. Include specific chords or modal colors. Keep it readable for musicians.'
+    },
+    { 
+      id: 'production', 
+      name: 'Production Move', 
+      description: 'Signature production technique',
+      prompt: 'Describe a single, stageable production move (like "Tape-stop into chorus", "Filter sweep on verses", "Hard pan dialogue"). Be specific about when and how.'
+    }
+  ]
+
+  const currentStep = steps[currentStepIndex]
+  
+  const getFallbackOptions = (stepId) => {
+    const fallbacks = {
+      theme: [
+        { label: "second language", explainer: "Communication barriers and learned behaviors" },
+        { label: "borrowed time", explainer: "Temporary states and deadlines" },
+        { label: "false spring", explainer: "Premature hope and seasonal confusion" },
+        { label: "exit interview", explainer: "Endings and formal closure" },
+        { label: "muscle memory", explainer: "Automatic responses and physical knowledge" },
+        { label: "parallel parking", explainer: "Small anxieties and urban navigation" }
+      ],
+      symbol: [
+        { label: "Moths + Static", explainer: "Attraction to interference, drawn to noise" },
+        { label: "Fever + Maps", explainer: "Delirium and navigation, lost while searching" },
+        { label: "Bridges + Ash", explainer: "Connection and aftermath, what remains of crossing" },
+        { label: "Windows + Tide", explainer: "Observation and rhythm, watching cycles" },
+        { label: "Keys + Smoke", explainer: "Access and dissolution, opening into vapor" },
+        { label: "Mirrors + Rain", explainer: "Reflection and obscurity, seeing through weather" }
+      ],
+      mechanic: [
+        { label: "Trap hi-hats at 140 BPM", explainer: "Rolling hi-hat patterns with occasional triplets" },
+        { label: "Walking bassline", explainer: "Quarter note bass movement, jazz-influenced" },
+        { label: "Call and response vocals", explainer: "Lead line answered by harmony or doubled voice" },
+        { label: "Polyrhythm 3:4", explainer: "Three against four rhythm creates tension" },
+        { label: "Drop tuning riffs", explainer: "Heavy, low guitar tuning for weight" },
+        { label: "Whisper to belt dynamics", explainer: "Extreme vocal dynamic range for impact" }
+      ],
+      form: [
+        { label: "ABABCB", explainer: "Verse/Chorus alternating with a bridge before final chorus" },
+        { label: "Through-composed", explainer: "No repeating sections, continuous development" },
+        { label: "V/V/C/V/C/C", explainer: "Classic pop structure with double chorus ending" },
+        { label: "AABA", explainer: "32-bar standard with contrasting bridge" },
+        { label: "Rondo ABACA", explainer: "Main theme returns between new sections" },
+        { label: "V/PC/C pattern", explainer: "Verse, pre-chorus, chorus cycle" }
+      ],
+      color: [
+        { label: "Fluorescent white", explainer: "Harsh overhead lighting, office anxiety" },
+        { label: "Dawn purple", explainer: "The hope and exhaustion of staying up all night" },
+        { label: "Rust orange", explainer: "Decay, autumn, industrial decline" },
+        { label: "Ocean gray", explainer: "Vast, neutral, contemplative depth" },
+        { label: "Neon pink", explainer: "Artificial vibrancy, night life energy" },
+        { label: "Forest green", explainer: "Deep natural sanctuary, growth" }
+      ],
+      harmony: [
+        { label: "i - VI - III - VII", explainer: "Dark modal progression, Dorian-influenced" },
+        { label: "I - V - vi - IV", explainer: "Pop progression with emotional resolution" },
+        { label: "Pedal tone under moving chords", explainer: "Static bass note creates tension" },
+        { label: "ii - V - I jazz cadence", explainer: "Smooth resolution with sophistication" },
+        { label: "Chromatic descent", explainer: "Bassline walks down by half steps" },
+        { label: "Quartal harmony", explainer: "Chords built in fourths, modern sound" }
+      ],
+      production: [
+        { label: "Reverse reverb on first word", explainer: "Swoosh into each verse for dramatic entry" },
+        { label: "Side-chain compression on chorus", explainer: "Everything pumps with the kick drum" },
+        { label: "Telephone filter on bridge", explainer: "Lo-fi intimate moment before final chorus" },
+        { label: "Vocal chop rhythms", explainer: "Stuttered vocal samples as percussion" },
+        { label: "Tape saturation warmth", explainer: "Analog warmth on all tracks" },
+        { label: "Hard pan call/response", explainer: "Voices jump left to right in conversation" }
+      ]
+    }
+    
+    return fallbacks[stepId] || Array(6).fill(null).map((_, i) => ({
+      label: `Option ${i + 1}`,
+      explainer: "A creative constraint for your song"
+    }))
+  }
+
+  useEffect(() => {
+    if (currentStepIndex < steps.length && !showResults) {
+      loadStepOptions()
+    }
+  }, [currentStepIndex])
+
+  const loadStepOptions = async () => {
+    setLoading(true)
+    setOptions([])
+    setSelectedIndex(null)
+    setDiceValue(null)
+    
+    const step = steps[currentStepIndex]
+    
+    try {
+      const response = await callAI(`${step.prompt} Generate exactly 6 options. Return as JSON with "label" (the option) and "explainer" (how to use it, under 150 chars) fields.`, {
+        schema: {
+          properties: {
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  label: { type: "string" },
+                  explainer: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      })
+      
+      const data = JSON.parse(response)
+      const items = (data.items || []).slice(0, 6)
+      
+      // Pad with fallbacks if needed
+      while (items.length < 6) {
+        const fallbacks = getFallbackOptions(step.id)
+        items.push(fallbacks[items.length])
+      }
+      
+      setOptions(items)
+    } catch (error) {
+      console.error("Error loading options:", error)
+      setOptions(getFallbackOptions(step.id))
+    }
+    
+    setLoading(false)
+  }
+
+  const rollDice = () => {
+    if (rolling || !options.length || selectedIndex !== null) return
+    
+    setRolling(true)
+    const roll = Math.floor(Math.random() * 6) + 1
+    const index = roll - 1
+    
+    let animationCount = 0
+    const animateRoll = () => {
+      animationCount++
+      setDiceValue(Math.floor(Math.random() * 6) + 1)
+      
+      if (animationCount < 10) {
+        animationRef.current = setTimeout(animateRoll, 70)
+      } else {
+        setDiceValue(roll)
+        setSelectedIndex(index)
+        setRolling(false)
+        
+        const newSelections = {
+          ...selections,
+          [currentStep.id]: options[index]
+        }
+        setSelections(newSelections)
+        
+        const newHistory = [...rollHistory, { step: currentStep.id, roll, index }]
+        setRollHistory(newHistory)
+      }
+    }
+    
+    animateRoll()
+  }
+
+  const useVeto = async () => {
+    if (vetoUsed || selectedIndex === null) return
+    setVetoUsed(true)
+    setLoading(true)
+    
+    const vetoedOption = options[selectedIndex]
+    const step = steps[currentStepIndex]
+    
+    try {
+      const response = await callAI(`${step.prompt} Generate exactly 1 new option that is different from: "${vetoedOption.label}". Return as JSON with "label" and "explainer" (under 150 chars) fields.`, {
+        schema: {
+          properties: {
+            label: { type: "string" },
+            explainer: { type: "string" }
+          }
+        }
+      })
+      
+      const newOption = JSON.parse(response)
+      const newOptions = [...options]
+      newOptions[selectedIndex] = newOption
+      setOptions(newOptions)
+    } catch (error) {
+      console.error("Error generating replacement:", error)
+      const fallbacks = getFallbackOptions(step.id)
+      const newOptions = [...options]
+      newOptions[selectedIndex] = fallbacks[(selectedIndex + 3) % 6]
+      setOptions(newOptions)
+    }
+    
+    setSelectedIndex(null)
+    setDiceValue(null)
+    
+    const newSelections = { ...selections }
+    delete newSelections[currentStep.id]
+    setSelections(newSelections)
+    setRollHistory(rollHistory.filter(h => h.step !== currentStep.id))
+    
+    setLoading(false)
+  }
+
+  const proceedToNext = async () => {
+    if (selectedIndex === null) return
+    
+    if (currentStepIndex === steps.length - 1) {
+      await saveSession()
+      setShowResults(true)
+    } else {
+      setCurrentStepIndex(currentStepIndex + 1)
+    }
+  }
+
+  const saveSession = async () => {
+    await database.put({
+      type: 'finitude-session',
+      seed: sessionSeed,
+      timestamp: sessionTimestamp,
+      selections: selections,
+      rollHistory: rollHistory,
+      completedAt: new Date().toISOString()
+    })
+  }
+
+  const generateMarkdown = () => {
+    let markdown = `# Finitude Session ${sessionSeed}\n${new Date(sessionTimestamp).toLocaleString()}\n\n`
+    
+    steps.forEach(step => {
+      const item = selections[step.id]
+      if (item) {
+        markdown += `## ${step.name}\n**${item.label}**\n_${item.explainer}_\n\n`
+      }
+    })
+    
+    markdown += `---\n_Generated by Finitude_`
+    return markdown
+  }
+
+  const copyMarkdown = () => {
+    navigator.clipboard.writeText(generateMarkdown())
+  }
+
+  const { docs: savedSessions } = useLiveQuery("type", { key: "finitude-session", limit: 10, descending: true })
+
+  if (showResults) {
+    return (
+      <div className="min-h-screen bg-[#ffd670] p-4" style={{
+        backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,112,166,0.1) 35px, rgba(255,112,166,0.1) 70px)`
+      }}>
+        <div className="max-w-3xl mx-auto bg-[#ffffff] rounded-xl border-8 border-[#242424] p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-black text-[#242424]">Song Blueprint</h1>
+            <div className="text-right">
+              <div className="text-sm text-[#242424]">Seed #{sessionSeed}</div>
+              <div className="text-xs text-gray-600">{new Date(sessionTimestamp).toLocaleString()}</div>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 mb-8 flex-wrap">
+            {rollHistory.map((h, i) => (
+              <div key={i} className="relative group">
+                <div className="w-12 h-12 bg-[#ff9770] rounded-lg text-[#242424] font-bold flex items-center justify-center text-lg border-2 border-[#242424]">
+                  {h.roll}
+                </div>
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#242424] text-[#ffffff] text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10">
+                  {steps[i]?.name}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-6">
+            {steps.map(step => {
+              const item = selections[step.id]
+              if (!item) return null
+              
+              return (
+                <div key={step.id} className="border-l-8 border-[#70d6ff] pl-4">
+                  <h3 className="font-black text-[#242424] text-lg mb-1">{step.name}</h3>
+                  <div className="text-xl text-[#242424] font-bold">{item.label}</div>
+                  <div className="text-sm text-gray-600 italic mt-1">{item.explainer}</div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex flex-wrap gap-3 mt-12 pt-8 border-t-4 border-[#e9ff70]">
+            <button onClick={copyMarkdown} className="px-6 py-3 bg-[#70d6ff] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
+              Copy Text
+            </button>
+            <button onClick={() => window.print()} className="px-6 py-3 bg-[#ff70a6] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
+              Print
+            </button>
+            <button onClick={() => window.location.reload()} className="px-6 py-3 bg-[#ff9770] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
+              New Session
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-[#70d6ff] p-4" style={{
+      backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 40px)`
+    }}>
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-[#ffffff] rounded-2xl border-8 border-[#242424] p-8 mb-6">
+          <div className="flex flex-col items-center mb-8">
+            <img src="banner.jpg" alt="Finitude Banner" className="w-full max-w-2xl mb-4 rounded-lg" />
+            <h1 className="text-4xl font-black text-[#242424]">Finitude</h1>
+          </div>
+          
+          <div className="flex justify-end mb-4">
+            <div className="flex gap-2">
+              {!vetoUsed && selectedIndex !== null && !loading && (
+                <button onClick={useVeto} className="px-4 py-2 bg-[#ff70a6] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
+                  🔄 Veto & Replace
+                </button>
+              )}
+              {vetoUsed && (
+                <div className="px-4 py-2 bg-gray-300 text-gray-600 font-bold rounded-full border-4 border-gray-400">
+                  Veto Used
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-1 mb-8">
+            {steps.map((step, idx) => (
+              <div 
+                key={step.id} 
+                className={`flex-1 h-2 rounded-full transition-all ${
+                  idx === currentStepIndex ? 'bg-[#ff9770]' : 
+                  idx < currentStepIndex ? 'bg-[#e9ff70]' : 'bg-gray-200'
+                }`} 
+              />
+            ))}
+          </div>
+
+          <div className="text-center mb-4">
+            <div className="text-sm text-gray-600 mb-1">Step {currentStepIndex + 1} of {steps.length}</div>
+            <h2 className="text-3xl font-black text-[#242424] mb-2">{currentStep.name}</h2>
+            <p className="text-gray-600 italic">{currentStep.description}</p>
+          </div>
+
+          <div className="flex justify-center my-12">
+            <div 
+              onClick={rollDice}
+              className={`${selectedIndex !== null || loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110'} transition-transform`}
+            >
+              <svg width="140" height="140" viewBox="0 0 140 140" className={rolling ? 'animate-spin' : ''}>
+                <g transform="translate(70,70)">
+                  <rect 
+                    x="-50" 
+                    y="-50" 
+                    width="100" 
+                    height="100" 
+                    rx="10"
+                    fill={rolling ? '#ff70a6' : selectedIndex !== null ? '#e9ff70' : '#ffd670'}
+                    stroke="#242424" 
+                    strokeWidth="5"
+                  />
+                  {diceValue ? (
+                    <text y="10" textAnchor="middle" className="text-5xl font-black fill-[#242424]">
+                      {diceValue}
+                    </text>
+                  ) : !selectedIndex && selectedIndex !== 0 && (
+                    <text y="8" textAnchor="middle" className="text-3xl font-black fill-[#242424]">
+                      ROLL
+                    </text>
+                  )}
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          {loading && (
+            <div className="text-center py-8">
+              <div className="inline-block w-12 h-12 border-4 border-[#ff70a6] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {options.length > 0 && !loading && (
+            <div className="grid gap-3 mb-8">
+              {options.map((option, i) => (
+                <div 
+                  key={i} 
+                  className={`p-4 rounded-xl border-4 transition-all ${
+                    selectedIndex === i 
+                      ? 'border-[#ff70a6] bg-[#ff70a6] scale-105 shadow-xl' 
+                      : selectedIndex !== null 
+                        ? 'border-gray-200 bg-gray-50 opacity-30'
+                        : 'border-[#242424] bg-[#e9ff70] hover:bg-[#ffd670]'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-[#242424] text-[#ffffff] rounded flex items-center justify-center font-bold">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-[#242424] text-lg">{option.label}</div>
+                      <div className="text-sm text-[#242424] italic mt-1">{option.explainer}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedIndex !== null && !loading && (
+            <button 
+              onClick={proceedToNext}
+              className="w-full py-4 bg-[#ff9770] text-[#242424] font-black text-xl rounded-full border-4 border-[#242424] hover:scale-105 transition-transform"
+            >
+              {currentStepIndex === steps.length - 1 ? '✨ View Blueprint' : 'Next →'}
+            </button>
+          )}
+        </div>
+
+        <div className="bg-[#ffffff] rounded-xl border-4 border-[#242424] p-4 mb-4">
+          <p className="text-[#242424]">
+            <em><strong>Quick creative constraints for songwriting.</strong> Click the dice button marked "ROLL" to randomly select from 6 AI-generated options. Each of the 7 steps adds a specific creative constraint. The <strong>Theme</strong> generates minimal phrases like "parallel parking" or "false spring". The <strong>Symbol Pair</strong> offers brief, resonant images like "Moths + Static" or "Fever + Maps"—airy words that evoke without overwhelming. You get one veto per session to replace any rolled option.</em>
+          </p>
+        </div>
+
+        {savedSessions.length > 0 && (
+          <div className="bg-[#ffffff] rounded-xl border-4 border-[#242424] p-4">
+            <h3 className="font-bold text-[#242424] mb-3">Recent Sessions</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {savedSessions.slice(0, 6).map(sess => (
+                <div key={sess._id} className="text-sm bg-[#e9ff70] rounded-lg p-2 border-2 border-[#242424]">
+                  <span className="font-bold">#{sess.seed}</span>
+                  <span className="text-gray-600 ml-2">
+                    {new Date(sess.completedAt || sess.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+      // prettier-ignore-end
+
+      const rootElement = document.getElementById('container');
+      // Check for babel errors before attempting to render
+      if (!window.babelTransformError) {
+        ReactDOMClient.createRoot(rootElement).render(<App />);
+      } else {
+        // Create fallback error UI if babel failed
+        rootElement.innerHTML = `
+          <div style="padding: 20px; color: red; font-family: monospace; white-space: pre-wrap;">
+            <h2>Syntax Error</h2>
+            <p>${window.babelTransformError.message}</p>
+          </div>
+        `;
+      }
+    </script>
+  </body>
+</html>
