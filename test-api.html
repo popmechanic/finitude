@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Call AI</title>
+</head>
+<body>
+    <h1>Test Call AI API</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+    
+    <script>
+      window.CALLAI_API_KEY = 'sk-vibes-proxy-managed';
+      window.SESSION_ID = 'fmejcgpq8ncqrglokd';
+      window.CALLAI_CHAT_URL = 'https://vibes-diy-api.com';
+    </script>
+    
+    <script type="module">
+      import { callAI } from 'https://esm.sh/call-ai';
+      
+      window.testAPI = async function() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '<p>Testing...</p>';
+        
+        try {
+          console.log('Starting test...');
+          const response = await callAI('Generate exactly 6 song mechanics. Return as JSON with "label" and "explainer" fields.', {
+            schema: {
+              properties: {
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      label: { type: "string" },
+                      explainer: { type: "string" }
+                    }
+                  }
+                }
+              }
+            },
+            temperature: 0.9,
+            seed: 12345
+          });
+          
+          console.log('Response:', response);
+          const data = JSON.parse(response);
+          resultDiv.innerHTML = `
+            <h2>Success!</h2>
+            <p>Generated ${data.items.length} items:</p>
+            <ul>
+              ${data.items.map(item => `<li><b>${item.label}</b>: ${item.explainer}</li>`).join('')}
+            </ul>
+          `;
+        } catch (error) {
+          console.error('Error:', error);
+          resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      }
+    </script>
+</body>
+</html>

@@ -1662,56 +1662,138 @@ export default function App() {
     }
   }, [currentStepIndex, sessionStarted])
 
-  const loadStepOptions = async () => {
-    setLoading(true)
-    setOptions([])
-    setSelectedIndex(null)
-    setDiceValue(null)
+  const loadStepOptions = async (retryCount = 0) => {
+    if (retryCount === 0) {
+      setLoading(true)
+      setOptions([])
+      setSelectedIndex(null)
+      setDiceValue(null)
+    }
     
     const step = steps[currentStepIndex]
     
     // Calculate temperature and seed for this step
-    const temperature = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
-    const stepSeed = masterSeed ? masterSeed + currentStepIndex : undefined;
+    // Add slight variation on retry to get different results
+    const tempVariation = retryCount * 0.1;
+    const baseTemp = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
+    const temperature = Math.min(1.5, baseTemp + tempVariation);
+    const stepSeed = masterSeed ? masterSeed + currentStepIndex + (retryCount * 100) : undefined;
     
-    console.log(`Generating ${step.id} with temperature: ${temperature}, seed: ${stepSeed}`);
+    console.log(`Generating ${step.id} with temperature: ${temperature}, seed: ${stepSeed}, retry: ${retryCount}`);
     
     try {
-      const response = await callAI(`${step.prompt} Generate exactly 6 options. Return as JSON with "label" (the option) and "explainer" (how to use it, under 150 chars) fields.`, {
+      console.log(`🎲 Calling AI for ${step.id}...`);
+      console.log('API Key available:', !!window.CALLAI_API_KEY);
+      
+      // More explicit prompt to ensure we get 6 items
+      const prompt = `${step.prompt} 
+      
+IMPORTANT: You MUST generate exactly 6 unique options. 
+Return as JSON array with this exact structure:
+{
+  "items": [
+    {"label": "option 1", "explainer": "description under 150 chars"},
+    {"label": "option 2", "explainer": "description under 150 chars"},
+    {"label": "option 3", "explainer": "description under 150 chars"},
+    {"label": "option 4", "explainer": "description under 150 chars"},
+    {"label": "option 5", "explainer": "description under 150 chars"},
+    {"label": "option 6", "explainer": "description under 150 chars"}
+  ]
+}`;
+      
+      const response = await callAI(prompt, {
         schema: {
           properties: {
             items: {
               type: "array",
+              minItems: 6,
+              maxItems: 6,
               items: {
                 type: "object",
+                required: ["label", "explainer"],
                 properties: {
-                  label: { type: "string" },
-                  explainer: { type: "string" }
+                  label: { type: "string", minLength: 1 },
+                  explainer: { type: "string", minLength: 1, maxLength: 150 }
                 }
               }
             }
-          }
+          },
+          required: ["items"]
         },
         temperature: temperature,
-        seed: stepSeed
+        seed: stepSeed,
+        // Explicitly pass API configuration
+        apiKey: window.CALLAI_API_KEY || 'sk-vibes-proxy-managed',
+        model: 'openrouter/auto',
+        max_tokens: 1000
       })
       
-      const data = JSON.parse(response)
-      const items = (data.items || []).slice(0, 6)
+      console.log(`✅ AI Response received for ${step.id}:`, response);
       
-      // Pad with fallbacks if needed
-      while (items.length < 6) {
-        const fallbacks = getFallbackOptions(step.id)
-        items.push(fallbacks[items.length])
+      // Handle different response formats
+      let data;
+      let items = [];
+      
+      try {
+        // Try to parse as JSON
+        data = typeof response === 'string' ? JSON.parse(response) : response;
+        
+        // Handle different possible response structures
+        if (Array.isArray(data)) {
+          items = data.slice(0, 6);
+        } else if (data.items && Array.isArray(data.items)) {
+          items = data.items.slice(0, 6);
+        } else if (data.options && Array.isArray(data.options)) {
+          items = data.options.slice(0, 6);
+        } else if (data.label && data.explainer) {
+          // Single item response, wrap in array
+          items = [data];
+        } else {
+          console.warn('Unexpected response structure:', data);
+          items = [];
+        }
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', parseError);
+        console.log('Raw response:', response);
+        items = [];
       }
       
-      setOptions(items)
+      console.log(`📊 Generated ${items.length} items for ${step.id}`);
+      
+      // Check if we got enough valid items
+      const validItems = items.filter(item => item && item.label && item.explainer);
+      
+      if (validItems.length < 6 && retryCount < 2) {
+        console.warn(`⚠️ Only got ${validItems.length} valid items, retrying... (attempt ${retryCount + 2}/3)`);
+        return loadStepOptions(retryCount + 1);
+      }
+      
+      // Pad with fallbacks if absolutely necessary
+      if (validItems.length < 6) {
+        console.warn(`⚠️ After ${retryCount + 1} attempts, only got ${validItems.length} items for ${step.id}, padding with fallbacks`);
+        const fallbacks = getFallbackOptions(step.id)
+        while (validItems.length < 6) {
+          validItems.push(fallbacks[validItems.length])
+        }
+      }
+      
+      setOptions(validItems)
+      setLoading(false)
     } catch (error) {
-      console.error("Error loading options:", error)
+      console.error(`❌ Error loading options for ${step.id} (attempt ${retryCount + 1}/3):`, error)
+      console.error('Full error details:', error.stack || error)
+      
+      // Retry with different parameters
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying AI call for ${step.id}...`);
+        return loadStepOptions(retryCount + 1);
+      }
+      
+      // Final fallback after all retries failed
+      console.log('🔄 All retries failed, using fallback options for', step.id)
       setOptions(getFallbackOptions(step.id))
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   const rollDice = async () => {
@@ -1768,42 +1850,89 @@ export default function App() {
     animateRoll()
   }
 
-  const useVeto = async () => {
+  const useVeto = async (retryCount = 0) => {
     if (vetoUsed || selectedIndex === null) return
-    setVetoUsed(true)
-    setLoading(true)
+    if (retryCount === 0) {
+      setVetoUsed(true)
+      setLoading(true)
+    }
     
     const vetoedOption = options[selectedIndex]
     const step = steps[currentStepIndex]
     
-    // Use same temperature but different seed for veto
-    const temperature = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
-    const vetoSeed = masterSeed ? masterSeed + currentStepIndex + 1000 : undefined;
+    // Use same temperature but different seed for veto, with variation on retry
+    const tempVariation = retryCount * 0.15;
+    const baseTemp = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
+    const temperature = Math.min(1.5, baseTemp + tempVariation + 0.1); // Slightly higher temp for veto
+    const vetoSeed = masterSeed ? masterSeed + currentStepIndex + 1000 + (retryCount * 100) : undefined;
     
     try {
-      const response = await callAI(`${step.prompt} Generate exactly 1 new option that is different from: "${vetoedOption.label}". Return as JSON with "label" and "explainer" (under 150 chars) fields.`, {
+      console.log(`🔄 Generating veto replacement for ${step.id}, attempt ${retryCount + 1}`);
+      
+      const prompt = `${step.prompt} 
+      
+Generate exactly 1 NEW unique option that is DIFFERENT from: "${vetoedOption.label}". 
+The new option must be creative and distinct.
+Return as JSON with this exact structure:
+{
+  "label": "new unique option",
+  "explainer": "description under 150 chars"
+}`;
+      
+      const response = await callAI(prompt, {
         schema: {
+          type: "object",
+          required: ["label", "explainer"],
           properties: {
-            label: { type: "string" },
-            explainer: { type: "string" }
+            label: { type: "string", minLength: 1 },
+            explainer: { type: "string", minLength: 1, maxLength: 150 }
           }
         },
         temperature: temperature,
-        seed: vetoSeed
+        seed: vetoSeed,
+        apiKey: window.CALLAI_API_KEY || 'sk-vibes-proxy-managed',
+        model: 'openrouter/auto',
+        max_tokens: 500
       })
       
-      const newOption = JSON.parse(response)
+      let newOption;
+      try {
+        newOption = typeof response === 'string' ? JSON.parse(response) : response;
+      } catch (parseError) {
+        console.error('Failed to parse veto response:', parseError);
+        throw new Error('Invalid response format');
+      }
+      
+      // Validate the new option
+      if (!newOption.label || !newOption.explainer) {
+        throw new Error('Invalid option structure');
+      }
+      
       const newOptions = [...options]
       newOptions[selectedIndex] = newOption
       setOptions(newOptions)
+      setLoading(false)
     } catch (error) {
-      console.error("Error generating replacement:", error)
+      console.error(`Error generating veto replacement (attempt ${retryCount + 1}):`, error)
+      
+      // Retry with different parameters
+      if (retryCount < 2) {
+        console.log('Retrying veto generation...');
+        return useVeto(retryCount + 1);
+      }
+      
+      // Final fallback after retries
+      console.log('Using fallback for veto');
       const fallbacks = getFallbackOptions(step.id)
       const newOptions = [...options]
-      newOptions[selectedIndex] = fallbacks[(selectedIndex + 3) % 6]
+      // Pick a different fallback option
+      const fallbackIndex = (selectedIndex + 3 + retryCount) % fallbacks.length;
+      newOptions[selectedIndex] = fallbacks[fallbackIndex]
       setOptions(newOptions)
+      setLoading(false)
     }
     
+    // Reset selection state after veto is processed
     setSelectedIndex(null)
     setDiceValue(null)
     
@@ -1811,8 +1940,6 @@ export default function App() {
     delete newSelections[currentStep.id]
     setSelections(newSelections)
     setRollHistory(rollHistory.filter(h => h.step !== currentStep.id))
-    
-    setLoading(false)
   }
 
   const proceedToNext = async () => {
