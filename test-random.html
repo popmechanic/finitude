@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random.org Test</title>
+</head>
+<body>
+    <h1>Random.org API Test</h1>
+    <button onclick="testQuota()">Check Quota</button>
+    <button onclick="testRandom()">Get Random Number</button>
+    <div id="result"></div>
+    
+    <script>
+    const RANDOM_ORG_BASE = 'https://www.random.org';
+    const RANDOM_ORG_TIMEOUT = 3000;
+    
+    async function testQuota() {
+        const resultDiv = document.getElementById('result');
+        try {
+            const response = await fetch(`${RANDOM_ORG_BASE}/quota/?format=plain`, {
+                method: 'GET',
+                signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
+            });
+            
+            if (response.ok) {
+                const quota = await response.text();
+                resultDiv.innerHTML = `<p>Quota: ${quota} bits</p>`;
+            } else {
+                resultDiv.innerHTML = `<p>Error: Status ${response.status}</p>`;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+        }
+    }
+    
+    async function testRandom() {
+        const resultDiv = document.getElementById('result');
+        try {
+            const response = await fetch(
+                `${RANDOM_ORG_BASE}/integers/?num=1&min=1&max=6&col=1&base=10&format=plain&rnd=new`,
+                {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
+                }
+            );
+            
+            if (response.ok) {
+                const number = await response.text();
+                resultDiv.innerHTML = `<p>Random dice roll: ${number.trim()}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p>Error: Status ${response.status}</p>`;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+        }
+    }
+    </script>
+</body>
+</html>
