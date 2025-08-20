@@ -1531,43 +1531,43 @@ export default function App() {
       id: 'theme', 
       name: 'Theme', 
       description: 'Core emotional territory',
-      prompt: 'Generate minimal, understated themes that suggest emotional territory without being overwrought. Use simple, evocative phrases that leave room for interpretation. Examples: "second language", "borrowed time", "false spring", "exit interview", "muscle memory", "parallel parking", "dead letters", "test pattern". Keep them grounded and specific but not overly poetic. Avoid flowery language.'
+      prompt: 'Generate poetic, symbolic themes that evoke emotional landscapes through unexpected juxtapositions and dreamlike imagery. Create phrases that feel like fragments of memory, half-remembered dreams, or emotional states caught between definitions. Use evocative, impressionistic language that suggests rather than states. Each theme should feel like a door into a larger emotional world. NOTE: These are examples for inspiration ONLY, do NOT return these specific phrases: "the weight of empty rooms", "conversations with past selves", "the archaeology of silence". Create entirely NEW and original themes.'
     },
     { 
       id: 'symbol', 
       name: 'Symbol Pair', 
       description: 'Two resonant images',
-      prompt: 'Create pairs of brief, evocative symbols joined by " + ". Use simple, broadly referential words that carry poetic weight without being precious. Examples: "Moths + Static", "Fever + Maps", "Bridges + Ash", "Windows + Tide", "Keys + Smoke", "Mirrors + Rain". Keep each word short and airy. Avoid overly dramatic or flowery choices - aim for quiet resonance.'
+      prompt: 'Create pairs of brief, evocative symbols joined by " + ". Use simple, broadly referential words that carry poetic weight without being precious. Keep each word short and airy. Avoid overly dramatic or flowery choices - aim for quiet resonance. NOTE: These examples are for style reference ONLY - do NOT use these specific pairs: "Moths + Static", "Fever + Maps". Create entirely NEW symbol combinations.'
     },
     { 
       id: 'mechanic', 
       name: 'Mechanic', 
       description: 'Musical DNA to borrow',
-      prompt: 'Name concrete music mechanics to borrow (rhythm patterns with BPM ranges, bass approaches, harmony concepts, voice techniques, texture ideas, or form structures). Be specific and practical.'
+      prompt: 'Name concrete music mechanics to borrow (rhythm patterns with BPM ranges, bass approaches, harmony concepts, voice techniques, texture ideas, or form structures). Be specific and practical. NOTE: Generate ORIGINAL mechanics - do not simply repeat common examples like "trap hi-hats" or "walking bassline". Create fresh, specific musical ideas.'
     },
     { 
       id: 'form', 
       name: 'Form', 
       description: 'Song structure',
-      prompt: 'Provide compact, readable song forms like "V/C×3 + Bridge", "AABA", "Verse/Verse/Chorus/Verse/Outro". Keep notation clear and standard.'
+      prompt: 'Provide compact, readable song forms using standard notation (V=verse, C=chorus, B=bridge, etc). Keep notation clear and musical. NOTE: The examples "V/C×3 + Bridge", "AABA" are for format reference only - generate UNIQUE form structures, not these specific ones.'
     },
     { 
       id: 'color', 
       name: 'Color Mood', 
       description: 'Emotional palette',
-      prompt: 'Generate color moods with context and hue (like "hospital green", "sunset amber", "midnight purple"). These should evoke specific emotional territories.'
+      prompt: 'Generate color moods with context and hue that evoke specific emotional territories. Combine a descriptive context with a color. NOTE: Do NOT use obvious examples like "hospital green" or "midnight blue" - create ORIGINAL, unexpected color-context combinations that suggest unique moods.'
     },
     { 
       id: 'harmony', 
       name: 'Harmony', 
       description: 'Chord approach',
-      prompt: 'Suggest compact chord progressions or harmonic approaches. Include specific chords or modal colors. Keep it readable for musicians.'
+      prompt: 'Suggest compact chord progressions or harmonic approaches. Include specific chords or modal colors. Keep it readable for musicians. NOTE: Create ORIGINAL progressions - avoid clichés like I-V-vi-IV. Generate fresh harmonic ideas that musicians can actually play.'
     },
     { 
       id: 'production', 
       name: 'Production Move', 
       description: 'Signature production technique',
-      prompt: 'Describe a single, stageable production move (like "Tape-stop into chorus", "Filter sweep on verses", "Hard pan dialogue"). Be specific about when and how.'
+      prompt: 'Describe a single, stageable production move. Be specific about when and how to apply the effect. NOTE: These are format examples only - do NOT suggest "tape-stop" or "filter sweep". Create ORIGINAL, specific production techniques that can be realistically implemented.'
     }
   ]
 
@@ -1593,12 +1593,12 @@ export default function App() {
   const getFallbackOptions = (stepId) => {
     const fallbacks = {
       theme: [
-        { label: "second language", explainer: "Communication barriers and learned behaviors" },
-        { label: "borrowed time", explainer: "Temporary states and deadlines" },
-        { label: "false spring", explainer: "Premature hope and seasonal confusion" },
-        { label: "exit interview", explainer: "Endings and formal closure" },
-        { label: "muscle memory", explainer: "Automatic responses and physical knowledge" },
-        { label: "parallel parking", explainer: "Small anxieties and urban navigation" }
+        { label: "the archaeology of silence", explainer: "Excavating unspoken histories and buried words" },
+        { label: "gravity of small betrayals", explainer: "The weight of minor treacheries accumulating" },
+        { label: "conversations with past selves", explainer: "Dialogues across time with who we were" },
+        { label: "the museum of almost", explainer: "Archive of near-misses and possibilities" },
+        { label: "maps drawn in water", explainer: "Temporary guidance, dissolving boundaries" },
+        { label: "dialects of longing", explainer: "The many languages of want and absence" }
       ],
       symbol: [
         { label: "Moths + Static", explainer: "Attraction to interference, drawn to noise" },
