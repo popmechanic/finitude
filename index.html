@@ -1541,7 +1541,7 @@ export default function App() {
       id: 'theme', 
       name: 'Theme', 
       description: 'Core emotional territory',
-      prompt: 'Generate poetic, symbolic themes that evoke emotional landscapes through unexpected juxtapositions and dreamlike imagery. Create phrases that feel like fragments of memory, half-remembered dreams, or emotional states caught between definitions. Use evocative, impressionistic language that suggests rather than states. Each theme should feel like a door into a larger emotional world. NOTE: These are examples for inspiration ONLY, do NOT return these specific phrases: "the weight of empty rooms", "conversations with past selves", "the archaeology of silence". Create entirely NEW and original themes.'
+      prompt: 'Generate brief, poetic themes. Maximum 4-5 words. Create evocative fragments that suggest emotional worlds through minimal language. Think haiku-like brevity with symbolic weight. Examples for tone only (do NOT use these): "letters to no one", "museum of almost", "gravity of small betrayals", "dialects of longing". Keep them short, impressionistic, and open to interpretation. No long phrases or wordy descriptions. Create entirely NEW themes.'
     },
     { 
       id: 'symbol', 
@@ -1603,12 +1603,12 @@ export default function App() {
   const getFallbackOptions = (stepId) => {
     const fallbacks = {
       theme: [
-        { label: "the archaeology of silence", explainer: "Excavating unspoken histories and buried words" },
-        { label: "gravity of small betrayals", explainer: "The weight of minor treacheries accumulating" },
-        { label: "conversations with past selves", explainer: "Dialogues across time with who we were" },
-        { label: "the museum of almost", explainer: "Archive of near-misses and possibilities" },
-        { label: "maps drawn in water", explainer: "Temporary guidance, dissolving boundaries" },
-        { label: "dialects of longing", explainer: "The many languages of want and absence" }
+        { label: "archaeology of silence", explainer: "Excavating unspoken histories" },
+        { label: "small betrayals", explainer: "Minor treacheries accumulating" },
+        { label: "past selves", explainer: "Dialogues across time" },
+        { label: "museum of almost", explainer: "Archive of near-misses" },
+        { label: "maps in water", explainer: "Dissolving boundaries" },
+        { label: "dialects of longing", explainer: "Languages of absence" }
       ],
       symbol: [
         { label: "Moths + Static", explainer: "Attraction to interference, drawn to noise" },
