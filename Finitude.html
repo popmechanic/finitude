@@ -10,15 +10,398 @@
     <!-- html2canvas-pro handles modern CSS color formats like OKLCH natively -->
     <link rel="stylesheet" href="https://esm.sh/use-vibes@latest/dist/components/ImgGen.css" />
     <style>
+      /* HYPERPOP-INSPIRED DESIGN SYSTEM */
+      :root {
+        /* Typography */
+        --font-heading: "Arial Black", "Helvetica Bold", system-ui, sans-serif;
+        --font-base: "Arial", "Helvetica", system-ui, sans-serif;
+        --font-mono: "Courier New", "IBM Plex Mono", monospace;
+        
+        /* HYPERPOP COLOR PALETTE - Based on Color Theory */
+        
+        /* PRIMARY TRIAD - Electric Core Colors */
+        --color-electric-pink: #ff006e;     /* Barbie Pink - Primary dominant */
+        --color-cyber-lime: #8ecae6;        /* Brat Green variant - Cool complement */
+        --color-neon-purple: #7209b7;       /* Electric purple - Triadic harmony */
+        
+        /* SECONDARY PALETTE - Pastels & Highlights */
+        --color-soft-cyan: #a2d2ff;         /* Pastel blue - Monochromatic with cyber-lime */
+        --color-peach-fuzz: #ffb3c6;        /* Soft pink - Tint of electric pink */
+        --color-lavender-mist: #cdb4db;     /* Pastel purple - Tint of neon purple */
+        
+        /* ACCENT COLORS - Y2K Inspired */
+        --color-acid-yellow: #ffff3f;       /* Bright yellow - Split complement */
+        --color-chrome-silver: #bde0ff;     /* Metallic blue - Tech inspiration */
+        --color-matrix-green: #39ff14;      /* Cyber green - Digital aesthetic */
+        
+        /* SEMANTIC COLORS - Functional with hyperpop twist */
+        --color-primary: var(--color-electric-pink);
+        --color-secondary: var(--color-cyber-lime);
+        --color-accent: var(--color-neon-purple);
+        --color-warning: var(--color-acid-yellow);
+        --color-danger: #ff1744;            /* Hot pink red */
+        --color-success: var(--color-matrix-green);
+        
+        /* BACKGROUNDS - Gradient foundations */
+        --color-bg-primary: #ffffff;        /* Pure white for contrast */
+        --color-bg-secondary: #f8f9ff;      /* Cool white with purple tint */
+        --color-bg-tertiary: var(--color-chrome-silver);  /* Tech-inspired surface */
+        --color-bg-dark: #1a0b2e;           /* Deep purple-black for drama */
+        --color-bg-gradient: linear-gradient(135deg, var(--color-peach-fuzz) 0%, var(--color-soft-cyan) 100%);
+        
+        /* TEXT COLORS - High contrast for readability */
+        --color-text-primary: #0d1117;      /* Almost black with blue undertone */
+        --color-text-inverse: #ffffff;      /* Pure white */
+        --color-text-muted: #6b7280;        /* Cool gray */
+        --color-text-accent: var(--color-neon-purple);  /* Purple for highlights */
+        
+        /* BORDERS & SHADOWS - Bold hyperpop style */
+        --color-border: #000000;            /* Black borders for maximum contrast */
+        --color-border-accent: var(--color-electric-pink);  /* Pink borders for emphasis */
+        --border-width: 3px;                /* Thick, bold borders */
+        --border-radius: 12px;              /* Rounded but not too soft */
+        
+        /* SHADOWS - Colored shadows for hyperpop effect */
+        --shadow-offset-x: 6px;
+        --shadow-offset-y: 6px;
+        --shadow-color: var(--color-neon-purple);  /* Purple shadows instead of black */
+        --shadow-color-alt: var(--color-electric-pink);  /* Pink shadows for variety */
+        --shadow-main: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--shadow-color);
+        --shadow-alt: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--shadow-color-alt);
+        --shadow-hover: 3px 3px 0px var(--shadow-color);
+        --shadow-active: 0px 0px 0px var(--shadow-color);
+        
+        /* SPACING - Consistent scale */
+        --space-xs: 4px;
+        --space-sm: 8px;
+        --space-md: 16px;
+        --space-lg: 24px;
+        --space-xl: 32px;
+        --space-xxl: 48px;
+        
+        /* Z-INDEX - Layering system */
+        --z-tooltip: 1000;
+        --z-modal: 2000;
+        --z-popover: 3000;
+      }
+      
       body {
         margin: 0;
         padding: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-family: var(--font-base);
+        font-weight: 400;
+        background: var(--color-bg-gradient);
+        color: var(--color-text-primary);
+        line-height: 1.4;
       }
+      
       #container {
         width: 100%;
-        height: 100vh;
+        min-height: 100vh;
+        background: var(--color-bg-gradient);
+        position: relative;
+      }
+      
+      /* Hyperpop animated background pattern */
+      #container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          radial-gradient(circle at 20% 20%, var(--color-electric-pink)20 0%, transparent 20%),
+          radial-gradient(circle at 80% 80%, var(--color-cyber-lime)20 0%, transparent 20%),
+          radial-gradient(circle at 40% 60%, var(--color-neon-purple)20 0%, transparent 20%);
+        background-size: 200px 200px, 150px 150px, 180px 180px;
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: -1;
+      }
+      
+      /* =================
+         NEOBRUTALISM COMPONENTS 
+         ================= */
+      
+      /* Base Button Component */
+      .neo-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        border-radius: var(--border-radius);
+        font-family: var(--font-heading);
+        font-weight: 900;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.15s ease-out;
+        gap: var(--space-sm);
+        cursor: pointer;
+        border: var(--border-width) solid var(--color-border);
+        box-shadow: var(--shadow-main);
+        position: relative;
+        user-select: none;
+        text-decoration: none;
+        min-height: 48px;
+        padding: 0 var(--space-lg);
+      }
+      
+      .neo-btn:hover:not(:disabled) {
+        transform: translate(calc(var(--shadow-offset-x) / 2), calc(var(--shadow-offset-y) / 2));
+        box-shadow: var(--shadow-hover);
+      }
+      
+      .neo-btn:active:not(:disabled) {
+        transform: translate(var(--shadow-offset-x), var(--shadow-offset-y));
+        box-shadow: var(--shadow-active);
+      }
+      
+      .neo-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      
+      /* Button Variants - Hyperpop Color Harmony */
+      .neo-btn-primary { 
+        background-color: var(--color-primary); 
+        color: var(--color-text-inverse); 
+        box-shadow: var(--shadow-main);
+      }
+      .neo-btn-secondary { 
+        background-color: var(--color-secondary); 
+        color: var(--color-text-primary); 
+        box-shadow: var(--shadow-alt);
+      }
+      .neo-btn-accent { 
+        background-color: var(--color-accent); 
+        color: var(--color-text-inverse); 
+        box-shadow: var(--shadow-main);
+      }
+      .neo-btn-warning { 
+        background-color: var(--color-warning); 
+        color: var(--color-text-primary); 
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple);
+      }
+      .neo-btn-danger { 
+        background-color: var(--color-danger); 
+        color: var(--color-text-inverse); 
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-cyber-lime);
+      }
+      .neo-btn-success { 
+        background-color: var(--color-success); 
+        color: var(--color-text-primary); 
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-electric-pink);
+      }
+      .neo-btn-neutral { 
+        background-color: var(--color-bg-primary); 
+        color: var(--color-text-primary); 
+        box-shadow: var(--shadow-main);
+      }
+      
+      /* Button Sizes */
+      .neo-btn-sm { min-height: 36px; padding: 0 var(--space-md); font-size: 14px; }
+      .neo-btn-lg { min-height: 56px; padding: 0 var(--space-xl); font-size: 18px; }
+      .neo-btn-icon { width: 48px; height: 48px; padding: 0; }
+      
+      /* Card Component */
+      .neo-card {
+        background-color: var(--color-bg-primary);
+        border: var(--border-width) solid var(--color-border);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-main);
+        padding: var(--space-xl);
+        position: relative;
+      }
+      
+      .neo-card-header {
+        margin-bottom: var(--space-lg);
+      }
+      
+      .neo-card-title {
+        font-family: var(--font-heading);
+        font-size: 24px;
+        font-weight: 900;
+        margin: 0 0 var(--space-sm) 0;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+      
+      .neo-card-description {
+        color: var(--color-text-muted);
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      
+      .neo-card-content {
+        margin-bottom: var(--space-lg);
+      }
+      
+      .neo-card-footer {
+        display: flex;
+        gap: var(--space-md);
+        justify-content: flex-end;
+        border-top: var(--border-width) solid var(--color-border);
+        padding-top: var(--space-lg);
+        margin-top: var(--space-lg);
+      }
+      
+      /* Badge Component */
+      .neo-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: var(--border-radius);
+        border: 2px solid var(--color-border);
+        padding: var(--space-xs) var(--space-sm);
+        font-family: var(--font-heading);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      
+      .neo-badge-primary { background-color: var(--color-electric-pink); color: var(--color-text-inverse); }
+      .neo-badge-secondary { background-color: var(--color-cyber-lime); color: var(--color-text-primary); }
+      .neo-badge-accent { background-color: var(--color-neon-purple); color: var(--color-text-inverse); }
+      .neo-badge-neutral { background-color: var(--color-chrome-silver); color: var(--color-text-primary); }
+      .neo-badge-pastel { background-color: var(--color-peach-fuzz); color: var(--color-text-primary); }
+      .neo-badge-cyber { background-color: var(--color-matrix-green); color: var(--color-text-primary); }
+      
+      /* Input Component */
+      .neo-input {
+        width: 100%;
+        border: var(--border-width) solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: var(--space-md);
+        font-family: var(--font-base);
+        font-size: 16px;
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        box-shadow: var(--shadow-main);
+        transition: all 0.15s ease-out;
+      }
+      
+      .neo-input:focus {
+        outline: none;
+        transform: translate(2px, 2px);
+        box-shadow: var(--shadow-hover);
+      }
+      
+      .neo-input::placeholder {
+        color: var(--color-text-muted);
+        font-style: italic;
+      }
+      
+      /* Alert Component */
+      .neo-alert {
+        border: var(--border-width) solid var(--color-border);
+        border-radius: var(--border-radius);
+        padding: var(--space-lg);
+        background-color: var(--color-bg-primary);
+        box-shadow: var(--shadow-main);
+        position: relative;
+      }
+      
+      .neo-alert-title {
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: 900;
+        margin: 0 0 var(--space-sm) 0;
+        text-transform: uppercase;
+      }
+      
+      .neo-alert-description {
+        margin: 0;
+        line-height: 1.5;
+      }
+      
+      .neo-alert-warning {
+        background-color: var(--color-acid-yellow);
+        border-color: var(--color-neon-purple);
+        color: var(--color-text-primary);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple);
+      }
+      
+      .neo-alert-danger {
+        background-color: var(--color-danger);
+        border-color: var(--color-cyber-lime);
+        color: var(--color-text-inverse);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-cyber-lime);
+      }
+      
+      .neo-alert-success {
+        background-color: var(--color-matrix-green);
+        border-color: var(--color-electric-pink);
+        color: var(--color-text-primary);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-electric-pink);
+      }
+      
+      /* Typography */
+      .neo-heading {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        margin: 0 0 var(--space-md) 0;
+      }
+      
+      .neo-heading-xl { font-size: 48px; line-height: 1.1; }
+      .neo-heading-lg { font-size: 36px; line-height: 1.2; }
+      .neo-heading-md { font-size: 24px; line-height: 1.3; }
+      .neo-heading-sm { font-size: 18px; line-height: 1.4; }
+      
+      /* Layout Utilities */
+      .neo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-xl);
+      }
+      
+      .neo-grid {
+        display: grid;
+        gap: var(--space-lg);
+      }
+      
+      .neo-grid-cols-1 { grid-template-columns: 1fr; }
+      .neo-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+      .neo-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+      
+      .neo-flex {
+        display: flex;
+        gap: var(--space-md);
+      }
+      
+      .neo-flex-col { flex-direction: column; }
+      .neo-flex-wrap { flex-wrap: wrap; }
+      .neo-justify-center { justify-content: center; }
+      .neo-justify-between { justify-content: space-between; }
+      .neo-items-center { align-items: center; }
+      
+      /* Spacing Utilities */
+      .neo-mb-xs { margin-bottom: var(--space-xs); }
+      .neo-mb-sm { margin-bottom: var(--space-sm); }
+      .neo-mb-md { margin-bottom: var(--space-md); }
+      .neo-mb-lg { margin-bottom: var(--space-lg); }
+      .neo-mb-xl { margin-bottom: var(--space-xl); }
+      
+      .neo-mt-xs { margin-top: var(--space-xs); }
+      .neo-mt-sm { margin-top: var(--space-sm); }
+      .neo-mt-md { margin-top: var(--space-md); }
+      .neo-mt-lg { margin-top: var(--space-lg); }
+      .neo-mt-xl { margin-top: var(--space-xl); }
+      
+      /* Special Effects */
+      .neo-shake:hover {
+        animation: shake 0.5s ease-in-out;
+      }
+      
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-2px); }
+        75% { transform: translateX(2px); }
       }
     </style>
     <script>
@@ -382,6 +765,172 @@
 import { callAI } from "call-ai"
 import { useFireproof } from "use-fireproof"
 
+// ===========================
+// NEOBRUTALISM COMPONENTS
+// ===========================
+
+// Button Component
+function NeoButton({ 
+  children, 
+  onClick, 
+  variant = 'primary', 
+  size = 'md', 
+  disabled = false, 
+  className = '', 
+  ...props 
+}) {
+  const classes = `neo-btn neo-btn-${variant} neo-btn-${size} ${className}`.trim();
+  
+  return (
+    <button 
+      className={classes}
+      onClick={onClick}
+      disabled={disabled}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Card Component
+function NeoCard({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-card ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function NeoCardHeader({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-card-header ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function NeoCardTitle({ children, className = '', ...props }) {
+  return (
+    <h3 className={`neo-card-title ${className}`} {...props}>
+      {children}
+    </h3>
+  );
+}
+
+function NeoCardDescription({ children, className = '', ...props }) {
+  return (
+    <p className={`neo-card-description ${className}`} {...props}>
+      {children}
+    </p>
+  );
+}
+
+function NeoCardContent({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-card-content ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function NeoCardFooter({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-card-footer ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+// Badge Component
+function NeoBadge({ children, variant = 'neutral', className = '', ...props }) {
+  const classes = `neo-badge neo-badge-${variant} ${className}`.trim();
+  
+  return (
+    <span className={classes} {...props}>
+      {children}
+    </span>
+  );
+}
+
+// Heading Component
+function NeoHeading({ children, level = 'md', className = '', ...props }) {
+  const classes = `neo-heading neo-heading-${level} ${className}`.trim();
+  const Tag = level === 'xl' || level === 'lg' ? 'h1' : 
+             level === 'md' ? 'h2' : 'h3';
+  
+  return (
+    <Tag className={classes} {...props}>
+      {children}
+    </Tag>
+  );
+}
+
+// Alert Component
+function NeoAlert({ children, variant = 'default', title, className = '', ...props }) {
+  const classes = `neo-alert ${variant !== 'default' ? `neo-alert-${variant}` : ''} ${className}`.trim();
+  
+  return (
+    <div className={classes} {...props}>
+      {title && <div className="neo-alert-title">{title}</div>}
+      <div className="neo-alert-description">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Container Component
+function NeoContainer({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-container ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+// Special Dice Component for hyperpop aesthetic
+function NeoDice({ value, isRolling, onClick, disabled }) {
+  const getBackgroundColor = () => {
+    if (disabled) return 'var(--color-bg-tertiary)';
+    if (isRolling) return 'var(--color-acid-yellow)';
+    return 'var(--color-bg-primary)';
+  };
+  
+  const getShadowColor = () => {
+    if (isRolling) return 'var(--color-electric-pink)';
+    return 'var(--color-neon-purple)';
+  };
+  
+  return (
+    <div 
+      className={`neo-card neo-items-center neo-justify-center ${!disabled ? 'cursor-pointer neo-shake' : 'opacity-50'}`}
+      onClick={!disabled ? onClick : undefined}
+      style={{
+        width: '140px',
+        height: '120px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: getBackgroundColor(),
+        borderWidth: '4px',
+        borderColor: 'var(--color-border)',
+        boxShadow: `var(--shadow-offset-x) var(--shadow-offset-y) 0px ${getShadowColor()}`,
+        fontSize: value ? '48px' : '32px',
+        fontFamily: 'var(--font-heading)',
+        fontWeight: '900',
+        textTransform: 'uppercase',
+        letterSpacing: value ? '0.1em' : '0.05em',
+        color: disabled ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
+        transition: 'all 0.3s ease',
+        padding: '8px'
+      }}
+    >
+      {isRolling ? '🎲' : (value ? value : 'ROLL')}
+    </div>
+  );
+}
+
 export default function App() {
   const { database, useLiveQuery } = useFireproof("finitude-enhanced")
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
@@ -679,203 +1228,337 @@ export default function App() {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-[#ffd670] p-4" style={{
-        backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,112,166,0.1) 35px, rgba(255,112,166,0.1) 70px)`
-      }}>
-        <div className="max-w-3xl mx-auto bg-[#ffffff] rounded-xl border-8 border-[#242424] p-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-black text-[#242424]">Song Blueprint</h1>
-            <div className="text-right">
-              <div className="text-sm text-[#242424]">Seed #{sessionSeed}</div>
-              <div className="text-xs text-gray-600">{new Date(sessionTimestamp).toLocaleString()}</div>
-            </div>
-          </div>
-          
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {rollHistory.map((h, i) => (
-              <div key={i} className="relative group">
-                <div className="w-12 h-12 bg-[#ff9770] rounded-lg text-[#242424] font-bold flex items-center justify-center text-lg border-2 border-[#242424]">
-                  {h.roll}
-                </div>
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#242424] text-[#ffffff] text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10">
-                  {steps[i]?.name}
+      <NeoContainer>
+        <NeoCard className="neo-mt-lg">
+          <NeoCardHeader>
+            <div className="neo-flex neo-justify-between neo-items-center">
+              <NeoHeading level="xl">🎵 SONG BLUEPRINT</NeoHeading>
+              <div>
+                <NeoBadge variant="primary">#{sessionSeed}</NeoBadge>
+                <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--color-text-muted)' }}>
+                  {new Date(sessionTimestamp).toLocaleString()}
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className="space-y-6">
-            {steps.map(step => {
-              const item = selections[step.id]
-              if (!item) return null
-              
-              return (
-                <div key={step.id} className="border-l-8 border-[#70d6ff] pl-4">
-                  <h3 className="font-black text-[#242424] text-lg mb-1">{step.name}</h3>
-                  <div className="text-xl text-[#242424] font-bold">{item.label}</div>
-                  <div className="text-sm text-gray-600 italic mt-1">{item.explainer}</div>
+            </div>
+          </NeoCardHeader>
+          
+          <NeoCardContent>
+            <div className="neo-flex neo-flex-wrap neo-mb-lg" style={{ gap: 'var(--space-xs)' }}>
+              {rollHistory.map((h, i) => (
+                <div key={i} className="relative">
+                  <NeoBadge 
+                    variant="accent" 
+                    style={{ 
+                      fontSize: '18px', 
+                      width: '40px', 
+                      height: '40px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {h.roll}
+                  </NeoBadge>
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
 
-          <div className="flex flex-wrap gap-3 mt-12 pt-8 border-t-4 border-[#e9ff70]">
-            <button onClick={copyMarkdown} className="px-6 py-3 bg-[#70d6ff] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
-              Copy Text
-            </button>
-            <button onClick={() => window.print()} className="px-6 py-3 bg-[#ff70a6] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
-              Print
-            </button>
-            <button onClick={() => window.location.reload()} className="px-6 py-3 bg-[#ff9770] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
-              New Session
-            </button>
-          </div>
-        </div>
-      </div>
+            <div className="neo-grid neo-grid-cols-1" style={{ gap: 'var(--space-lg)' }}>
+              {steps.map(step => {
+                const item = selections[step.id]
+                if (!item) return null
+                
+                return (
+                  <NeoCard key={step.id} style={{ 
+                    borderLeft: '8px solid var(--color-primary)',
+                    backgroundColor: 'var(--color-bg-tertiary)'
+                  }}>
+                    <NeoCardHeader style={{ marginBottom: 'var(--space-sm)' }}>
+                      <NeoHeading level="sm">{step.name}</NeoHeading>
+                    </NeoCardHeader>
+                    <NeoCardContent>
+                      <div style={{ 
+                        fontSize: '20px', 
+                        fontFamily: 'var(--font-heading)',
+                        fontWeight: '900',
+                        marginBottom: 'var(--space-sm)',
+                        textTransform: 'uppercase'
+                      }}>
+                        {item.label}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px',
+                        color: 'var(--color-text-muted)',
+                        fontStyle: 'italic'
+                      }}>
+                        {item.explainer}
+                      </div>
+                    </NeoCardContent>
+                  </NeoCard>
+                )
+              })}
+            </div>
+          </NeoCardContent>
+
+          <NeoCardFooter>
+            <NeoButton onClick={copyMarkdown} variant="accent" size="lg">
+              📋 COPY TEXT
+            </NeoButton>
+            <NeoButton onClick={() => window.print()} variant="neutral" size="lg">
+              🖨️ PRINT
+            </NeoButton>
+            <NeoButton onClick={() => window.location.reload()} variant="danger" size="lg">
+              🔄 NEW SESSION
+            </NeoButton>
+          </NeoCardFooter>
+        </NeoCard>
+      </NeoContainer>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#70d6ff] p-4" style={{
-      backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 40px)`
-    }}>
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-[#ffffff] rounded-2xl border-8 border-[#242424] p-8 mb-6">
-          <div className="flex flex-col items-center mb-8">
-            <img src="banner.jpg" alt="Finitude Banner" className="w-full max-w-2xl mb-4 rounded-lg" />
-            <h1 className="text-4xl font-black text-[#242424]">Finitude</h1>
+    <NeoContainer>
+      <NeoCard className="neo-mt-lg">
+        <NeoCardHeader>
+          <div className="neo-flex neo-flex-col neo-items-center">
+            <img 
+              src="banner.jpg" 
+              alt="Finitude Banner" 
+              style={{
+                width: '100%',
+                maxWidth: '600px',
+                marginBottom: 'var(--space-lg)',
+                border: 'var(--border-width) solid var(--color-border)',
+                borderRadius: 'var(--border-radius)',
+                boxShadow: 'var(--shadow-main)'
+              }}
+            />
+            <NeoHeading level="xl">⚡ FINITUDE ⚡</NeoHeading>
+            <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+              CREATIVE CONSTRAINT GENERATOR
+            </div>
           </div>
-          
-          <div className="flex justify-end mb-4">
-            <div className="flex gap-2">
+        </NeoCardHeader>
+        
+        <NeoCardContent>
+          {/* Veto Button */}
+          <div className="neo-flex neo-justify-between neo-items-center neo-mb-lg">
+            <NeoBadge variant="neutral">
+              Step {currentStepIndex + 1} of {steps.length}
+            </NeoBadge>
+            <div className="neo-flex">
               {!vetoUsed && selectedIndex !== null && !loading && (
-                <button onClick={useVeto} className="px-4 py-2 bg-[#ff70a6] text-[#242424] font-bold rounded-full border-4 border-[#242424] hover:scale-105 transition-transform">
-                  🔄 Veto & Replace
-                </button>
+                <NeoButton onClick={useVeto} variant="warning" size="sm">
+                  🔄 VETO & REPLACE
+                </NeoButton>
               )}
               {vetoUsed && (
-                <div className="px-4 py-2 bg-gray-300 text-gray-600 font-bold rounded-full border-4 border-gray-400">
-                  Veto Used
-                </div>
+                <NeoBadge variant="neutral">VETO USED</NeoBadge>
               )}
             </div>
           </div>
 
-          <div className="flex gap-1 mb-8">
+          {/* Progress Bar */}
+          <div className="neo-flex neo-mb-xl" style={{ gap: 'var(--space-xs)' }}>
             {steps.map((step, idx) => (
               <div 
                 key={step.id} 
-                className={`flex-1 h-2 rounded-full transition-all ${
-                  idx === currentStepIndex ? 'bg-[#ff9770]' : 
-                  idx < currentStepIndex ? 'bg-[#e9ff70]' : 'bg-gray-200'
-                }`} 
+                style={{
+                  flex: 1,
+                  height: '12px',
+                  backgroundColor: idx === currentStepIndex ? 'var(--color-electric-pink)' : 
+                                   idx < currentStepIndex ? 'var(--color-matrix-green)' : 'var(--color-chrome-silver)',
+                  border: '2px solid var(--color-border)',
+                  borderRadius: 'var(--border-radius)',
+                  boxShadow: idx === currentStepIndex ? '2px 2px 0px var(--color-neon-purple)' : 'none',
+                  transition: 'all 0.3s ease',
+                  position: 'relative'
+                }} 
               />
             ))}
           </div>
 
-          <div className="text-center mb-4">
-            <div className="text-sm text-gray-600 mb-1">Step {currentStepIndex + 1} of {steps.length}</div>
-            <h2 className="text-3xl font-black text-[#242424] mb-2">{currentStep.name}</h2>
-            <p className="text-gray-600 italic">{currentStep.description}</p>
+          {/* Current Step Header */}
+          <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+            <NeoHeading level="lg">{currentStep.name}</NeoHeading>
+            <div style={{ 
+              color: 'var(--color-text-muted)', 
+              fontStyle: 'italic',
+              fontSize: '16px'
+            }}>
+              {currentStep.description}
+            </div>
           </div>
 
-          <div className="flex justify-center my-12">
-            <div 
+          {/* Dice Interface */}
+          <div className="neo-flex neo-justify-center neo-mb-xl">
+            <NeoDice 
+              value={diceValue}
+              isRolling={rolling}
               onClick={rollDice}
-              className={`${selectedIndex !== null || loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110'} transition-transform`}
-            >
-              <svg width="140" height="140" viewBox="0 0 140 140" className={rolling ? 'animate-spin' : ''}>
-                <g transform="translate(70,70)">
-                  <rect 
-                    x="-50" 
-                    y="-50" 
-                    width="100" 
-                    height="100" 
-                    rx="10"
-                    fill={rolling ? '#ff70a6' : selectedIndex !== null ? '#e9ff70' : '#ffd670'}
-                    stroke="#242424" 
-                    strokeWidth="5"
-                  />
-                  {diceValue ? (
-                    <text y="10" textAnchor="middle" className="text-5xl font-black fill-[#242424]">
-                      {diceValue}
-                    </text>
-                  ) : !selectedIndex && selectedIndex !== 0 && (
-                    <text y="8" textAnchor="middle" className="text-3xl font-black fill-[#242424]">
-                      ROLL
-                    </text>
-                  )}
-                </g>
-              </svg>
-            </div>
+              disabled={selectedIndex !== null || loading}
+            />
           </div>
 
+          {/* Loading State */}
           {loading && (
-            <div className="text-center py-8">
-              <div className="inline-block w-12 h-12 border-4 border-[#ff70a6] border-t-transparent rounded-full animate-spin" />
+            <div style={{ textAlign: 'center', padding: 'var(--space-xl)' }}>
+              <NeoAlert variant="warning" title="🤖 AI THINKING...">
+                Generating creative constraints for you...
+              </NeoAlert>
             </div>
           )}
 
+          {/* Options Grid */}
           {options.length > 0 && !loading && (
-            <div className="grid gap-3 mb-8">
-              {options.map((option, i) => (
-                <div 
-                  key={i} 
-                  className={`p-4 rounded-xl border-4 transition-all ${
-                    selectedIndex === i 
-                      ? 'border-[#ff70a6] bg-[#ff70a6] scale-105 shadow-xl' 
-                      : selectedIndex !== null 
-                        ? 'border-gray-200 bg-gray-50 opacity-30'
-                        : 'border-[#242424] bg-[#e9ff70] hover:bg-[#ffd670]'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-[#242424] text-[#ffffff] rounded flex items-center justify-center font-bold">
-                      {i + 1}
+            <div className="neo-grid neo-grid-cols-1 neo-mb-lg">
+              {options.map((option, i) => {
+                const getCardColors = () => {
+                  if (selectedIndex === i) {
+                    return {
+                      bg: 'var(--color-electric-pink)',
+                      color: 'var(--color-text-inverse)',
+                      badgeVariant: 'neutral',
+                      shadow: 'var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple)'
+                    };
+                  }
+                  if (selectedIndex !== null) {
+                    return {
+                      bg: 'var(--color-chrome-silver)',
+                      color: 'var(--color-text-muted)',
+                      badgeVariant: 'neutral',
+                      shadow: 'var(--shadow-main)'
+                    };
+                  }
+                  
+                  // Rotate through hyperpop colors for variety
+                  const colors = [
+                    { bg: 'var(--color-peach-fuzz)', variant: 'primary' },
+                    { bg: 'var(--color-soft-cyan)', variant: 'accent' },
+                    { bg: 'var(--color-lavender-mist)', variant: 'secondary' },
+                    { bg: 'var(--color-cyber-lime)', variant: 'primary' },
+                    { bg: 'var(--color-chrome-silver)', variant: 'accent' },
+                    { bg: 'var(--color-peach-fuzz)', variant: 'secondary' }
+                  ];
+                  const colorSet = colors[i % colors.length];
+                  return {
+                    bg: colorSet.bg,
+                    color: 'var(--color-text-primary)',
+                    badgeVariant: colorSet.variant,
+                    shadow: i % 2 === 0 ? 'var(--shadow-main)' : 'var(--shadow-alt)'
+                  };
+                };
+                
+                const cardColors = getCardColors();
+                
+                return (
+                  <NeoCard 
+                    key={i}
+                    style={{
+                      backgroundColor: cardColors.bg,
+                      opacity: selectedIndex !== null && selectedIndex !== i ? 0.4 : 1,
+                      transform: selectedIndex === i ? 'scale(1.02)' : 'scale(1)',
+                      transition: 'all 0.3s ease',
+                      cursor: selectedIndex === null ? 'pointer' : 'default',
+                      color: cardColors.color,
+                      boxShadow: cardColors.shadow
+                    }}
+                    onClick={selectedIndex === null ? () => setSelectedIndex(i) : undefined}
+                  >
+                    <div className="neo-flex neo-items-center" style={{ gap: 'var(--space-md)' }}>
+                      <NeoBadge 
+                        variant={cardColors.badgeVariant}
+                        style={{ fontSize: '18px', minWidth: '32px', minHeight: '32px' }}
+                      >
+                        {i + 1}
+                      </NeoBadge>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ 
+                          fontFamily: 'var(--font-heading)',
+                          fontSize: '18px',
+                          fontWeight: '900',
+                          marginBottom: 'var(--space-xs)',
+                          textTransform: 'uppercase'
+                        }}>
+                          {option.label}
+                        </div>
+                        <div style={{ 
+                          fontSize: '14px',
+                          fontStyle: 'italic',
+                          lineHeight: 1.4,
+                          opacity: selectedIndex === i ? 0.9 : 0.8
+                        }}>
+                          {option.explainer}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-[#242424] text-lg">{option.label}</div>
-                      <div className="text-sm text-[#242424] italic mt-1">{option.explainer}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  </NeoCard>
+                );
+              })}
             </div>
           )}
 
+          {/* Next Button */}
           {selectedIndex !== null && !loading && (
-            <button 
-              onClick={proceedToNext}
-              className="w-full py-4 bg-[#ff9770] text-[#242424] font-black text-xl rounded-full border-4 border-[#242424] hover:scale-105 transition-transform"
-            >
-              {currentStepIndex === steps.length - 1 ? '✨ View Blueprint' : 'Next →'}
-            </button>
+            <div style={{ textAlign: 'center' }}>
+              <NeoButton 
+                onClick={proceedToNext}
+                variant="success"
+                size="lg"
+                style={{ width: '100%', fontSize: '20px' }}
+              >
+                {currentStepIndex === steps.length - 1 ? '✨ VIEW BLUEPRINT' : 'NEXT STEP →'}
+              </NeoButton>
+            </div>
           )}
-        </div>
+        </NeoCardContent>
+      </NeoCard>
 
-        <div className="bg-[#ffffff] rounded-xl border-4 border-[#242424] p-4 mb-4">
-          <p className="text-[#242424]">
-            <em><strong>Quick creative constraints for songwriting.</strong> Click the dice button marked "ROLL" to randomly select from 6 AI-generated options. Each of the 7 steps adds a specific creative constraint. The <strong>Theme</strong> generates minimal phrases like "parallel parking" or "false spring". The <strong>Symbol Pair</strong> offers brief, resonant images like "Moths + Static" or "Fever + Maps"—airy words that evoke without overwhelming. You get one veto per session to replace any rolled option.</em>
+      {/* Instructions Card */}
+      <NeoCard className="neo-mt-lg">
+        <NeoCardHeader>
+          <NeoHeading level="md">📖 HOW IT WORKS</NeoHeading>
+        </NeoCardHeader>
+        <NeoCardContent>
+          <p style={{ lineHeight: 1.6, fontSize: '16px' }}>
+            <strong>Quick creative constraints for songwriting.</strong> Click the dice to randomly select from 6 AI-generated options. 
+            Each of the 7 steps adds a specific creative constraint. The <strong>Theme</strong> generates minimal phrases like 
+            "parallel parking" or "false spring". The <strong>Symbol Pair</strong> offers brief, resonant images like 
+            "Moths + Static" or "Fever + Maps"—airy words that evoke without overwhelming. You get one veto per session 
+            to replace any rolled option.
           </p>
-        </div>
+        </NeoCardContent>
+      </NeoCard>
 
-        {savedSessions.length > 0 && (
-          <div className="bg-[#ffffff] rounded-xl border-4 border-[#242424] p-4">
-            <h3 className="font-bold text-[#242424] mb-3">Recent Sessions</h3>
-            <div className="grid grid-cols-2 gap-2">
+      {/* Recent Sessions */}
+      {savedSessions.length > 0 && (
+        <NeoCard className="neo-mt-lg">
+          <NeoCardHeader>
+            <NeoHeading level="md">🕐 RECENT SESSIONS</NeoHeading>
+          </NeoCardHeader>
+          <NeoCardContent>
+            <div className="neo-grid neo-grid-cols-2">
               {savedSessions.slice(0, 6).map(sess => (
-                <div key={sess._id} className="text-sm bg-[#e9ff70] rounded-lg p-2 border-2 border-[#242424]">
-                  <span className="font-bold">#{sess.seed}</span>
-                  <span className="text-gray-600 ml-2">
+                <NeoBadge 
+                  key={sess._id} 
+                  variant="secondary"
+                  style={{
+                    justifyContent: 'space-between',
+                    padding: 'var(--space-md)',
+                    fontSize: '14px'
+                  }}
+                >
+                  <span style={{ fontWeight: '900' }}>#{sess.seed}</span>
+                  <span style={{ fontSize: '12px', opacity: 0.7 }}>
                     {new Date(sess.completedAt || sess.timestamp).toLocaleDateString()}
                   </span>
-                </div>
+                </NeoBadge>
               ))}
             </div>
-          </div>
-        )}
-      </div>
-    </div>
+          </NeoCardContent>
+        </NeoCard>
+      )}
+    </NeoContainer>
   )
 }
       // prettier-ignore-end
