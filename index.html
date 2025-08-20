@@ -965,7 +965,242 @@ function NeoProgress({ value, className = '', ...props }) {
   );
 }
 
-// Intention Focus Component with breathing animation
+// Initial Intention Component for master seed generation
+function InitialIntention({ onComplete }) {
+  const [countdown, setCountdown] = useState(0);
+  const [focusing, setFocusing] = useState(false);
+  const [ready, setReady] = useState(false);
+  const timerRef = useRef();
+  
+  const startFocus = async () => {
+    setFocusing(true);
+    setCountdown(5);
+    
+    // Start countdown
+    let count = 5;
+    timerRef.current = setInterval(() => {
+      count--;
+      setCountdown(count);
+      
+      if (count <= 0) {
+        clearInterval(timerRef.current);
+        completeFocus();
+      }
+    }, 1000);
+  };
+  
+  const completeFocus = async () => {
+    // Fetch master seed and temperature
+    const seed = await fetchMasterSeed();
+    const temp = await fetchTemperatureBase();
+    
+    // Brief pause before transitioning
+    setTimeout(() => {
+      onComplete(seed, temp);
+    }, 500);
+  };
+  
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+  
+  if (!ready) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'var(--space-xl)'
+      }}>
+        <NeoCard style={{ maxWidth: '600px', textAlign: 'center' }}>
+          <NeoCardContent>
+            <NeoHeading level="xl" style={{ marginBottom: 'var(--space-lg)' }}>
+              FINITUDE
+            </NeoHeading>
+            <p style={{ 
+              fontSize: '18px',
+              fontWeight: '500',
+              marginBottom: 'var(--space-xl)',
+              color: 'var(--ultra-violet)'
+            }}>
+              Creative constraints for songwriting
+            </p>
+            <div style={{
+              padding: 'var(--space-lg)',
+              background: 'var(--lavender-blush)',
+              borderRadius: 'var(--border-radius)',
+              border: 'var(--border-width) solid var(--color-border)',
+              marginBottom: 'var(--space-xl)'
+            }}>
+              <p style={{ 
+                fontSize: '16px',
+                lineHeight: 1.6,
+                marginBottom: 'var(--space-md)'
+              }}>
+                Before we begin, take a moment to <strong>focus your creative intention</strong>.
+              </p>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--color-text-muted)',
+                fontStyle: 'italic'
+              }}>
+                This ritual will seed today's unique creative constraints
+              </p>
+            </div>
+            <NeoButton 
+              onClick={() => setReady(true)}
+              variant="primary"
+              size="lg"
+              style={{ fontSize: '18px' }}
+            >
+              BEGIN RITUAL
+            </NeoButton>
+          </NeoCardContent>
+        </NeoCard>
+      </div>
+    );
+  }
+  
+  if (!focusing) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'var(--space-xl)'
+      }}>
+        <NeoCard style={{ maxWidth: '500px', textAlign: 'center' }}>
+          <NeoCardContent>
+            <NeoHeading level="lg" style={{ marginBottom: 'var(--space-lg)' }}>
+              Set Your Intention
+            </NeoHeading>
+            <p style={{ 
+              fontSize: '16px',
+              marginBottom: 'var(--space-xl)',
+              lineHeight: 1.6
+            }}>
+              Focus on what you want to create today. 
+              Let your intention guide the constraints.
+            </p>
+            <NeoButton 
+              onClick={startFocus}
+              variant="success"
+              size="lg"
+              style={{ fontSize: '18px' }}
+            >
+              FOCUS INTENTION
+            </NeoButton>
+          </NeoCardContent>
+        </NeoCard>
+      </div>
+    );
+  }
+  
+  // Focusing state with animation
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 'var(--space-xl)',
+      background: `linear-gradient(135deg, var(--lavender-blush) 0%, var(--color-bg) 100%)`
+    }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--space-lg)'
+      }}>
+        {/* Large breathing circle */}
+        <div style={{
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: countdown > 0 ? 'var(--moonstone)' : 'var(--salmon-pink)',
+          border: 'var(--border-width) solid var(--color-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: 'breathe 2s ease-in-out infinite',
+          boxShadow: 'var(--shadow-main)',
+          position: 'relative',
+          transition: 'all 0.5s ease'
+        }}>
+          {/* Multiple pulse rings */}
+          <div style={{
+            position: 'absolute',
+            top: '-12px',
+            left: '-12px',
+            right: '-12px',
+            bottom: '-12px',
+            borderRadius: '50%',
+            border: '4px solid var(--salmon-pink)',
+            animation: 'pulse-ring 2s ease-out infinite',
+            opacity: 0.6
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: '-24px',
+            left: '-24px',
+            right: '-24px',
+            bottom: '-24px',
+            borderRadius: '50%',
+            border: '2px solid var(--ultra-violet)',
+            animation: 'pulse-ring 2s ease-out infinite 0.5s',
+            opacity: 0.4
+          }} />
+          
+          <div style={{
+            fontSize: countdown > 0 ? '48px' : '32px',
+            color: 'var(--color-text-inverse)',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: '900',
+            animation: 'count-fade 1s ease-out',
+            transition: 'font-size 0.5s ease'
+          }}>
+            {countdown > 0 ? countdown : '✨'}
+          </div>
+        </div>
+        
+        {/* Status text */}
+        <div style={{
+          textAlign: 'center',
+          animation: 'fade-in 0.5s ease-out'
+        }}>
+          <div style={{
+            fontSize: '20px',
+            fontFamily: 'var(--font-heading)',
+            fontWeight: '900',
+            color: 'var(--ultra-violet)',
+            textTransform: 'uppercase',
+            marginBottom: 'var(--space-sm)'
+          }}>
+            {countdown > 3 ? 'Channeling Creative Energy' : 
+             countdown > 0 ? 'Seeding Possibility Space' : 
+             'Preparing Your Constraints'}
+          </div>
+          <div style={{
+            fontSize: '14px',
+            color: 'var(--color-text-muted)',
+            fontStyle: 'italic'
+          }}>
+            Focus your intention...
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Intention Focus Component with breathing animation (for dice rolls)
 function IntentionFocus({ countdown, onComplete }) {
   React.useEffect(() => {
     if (countdown <= 0) {
@@ -1192,6 +1427,81 @@ async function generateRandomDice() {
   return trueRandom !== null ? trueRandom : generateLocalRandom();
 }
 
+// Fetch master seed for LLM generation (large integer)
+async function fetchMasterSeed() {
+  try {
+    const hasQuota = await checkRandomOrgQuota();
+    if (!hasQuota) {
+      console.log('Using local master seed generation');
+      return Math.floor(Math.random() * 9000000) + 1000000;
+    }
+    
+    const response = await fetch(
+      `${RANDOM_ORG_BASE}/integers/?num=1&min=1000000&max=9999999&col=1&base=10&format=plain&rnd=new`,
+      {
+        method: 'GET',
+        signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
+      }
+    );
+    
+    if (response.ok) {
+      const seed = parseInt(await response.text().trim());
+      console.log('Master seed from Random.org:', seed);
+      return seed;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch master seed:', error);
+  }
+  
+  // Fallback to local generation
+  return Math.floor(Math.random() * 9000000) + 1000000;
+}
+
+// Fetch temperature base (0.0-1.0 decimal)
+async function fetchTemperatureBase() {
+  try {
+    const hasQuota = await checkRandomOrgQuota();
+    if (!hasQuota) {
+      return Math.random();
+    }
+    
+    const response = await fetch(
+      `${RANDOM_ORG_BASE}/decimal-fractions/?num=1&dec=2&col=1&format=plain&rnd=new`,
+      {
+        method: 'GET',
+        signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
+      }
+    );
+    
+    if (response.ok) {
+      const temp = parseFloat(await response.text().trim());
+      console.log('Temperature base from Random.org:', temp);
+      return temp;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch temperature base:', error);
+  }
+  
+  // Fallback to local generation
+  return Math.random();
+}
+
+// Calculate step-specific temperature based on base value
+function getStepTemperature(stepId, temperatureBase) {
+  const ranges = {
+    'theme': [0.9, 1.2],      // Most creative
+    'symbol-pair': [0.8, 1.1],     // Creative  
+    'mechanic': [0.7, 0.9],   // Balanced
+    'form': [0.6, 0.8],       // Structured
+    'color-mood': [0.8, 1.0],      // Descriptive
+    'harmony': [0.7, 0.9],    // Technical
+    'production-move': [0.7, 0.9]  // Technical
+  };
+  
+  const [min, max] = ranges[stepId] || [0.8, 1.0];
+  return min + (temperatureBase * (max - min));
+}
+
 export default function App() {
   const { database, useLiveQuery } = useFireproof("finitude-enhanced")
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
@@ -1208,8 +1518,13 @@ export default function App() {
   const [showResults, setShowResults] = useState(false)
   const [focusingIntention, setFocusingIntention] = useState(false)
   const [intentionCountdown, setIntentionCountdown] = useState(3)
+  const [sessionStarted, setSessionStarted] = useState(false)
+  const [initialIntention, setInitialIntention] = useState(false)
+  const [masterSeed, setMasterSeed] = useState(null)
+  const [temperatureBase, setTemperatureBase] = useState(null)
   const animationRef = useRef()
   const intentionTimerRef = useRef()
+  const initialIntentionTimerRef = useRef()
   
   const steps = [
     { 
@@ -1263,8 +1578,17 @@ export default function App() {
     return () => {
       if (animationRef.current) clearTimeout(animationRef.current)
       if (intentionTimerRef.current) clearInterval(intentionTimerRef.current)
+      if (initialIntentionTimerRef.current) clearInterval(initialIntentionTimerRef.current)
     }
   }, [])
+  
+  // Handle initial intention completion
+  const handleIntentionComplete = (seed, temp) => {
+    setMasterSeed(seed);
+    setTemperatureBase(temp);
+    setSessionStarted(true);
+    console.log('Session initialized with seed:', seed, 'temperature base:', temp);
+  }
   
   const getFallbackOptions = (stepId) => {
     const fallbacks = {
@@ -1333,10 +1657,10 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (currentStepIndex < steps.length && !showResults) {
+    if (currentStepIndex < steps.length && !showResults && sessionStarted) {
       loadStepOptions()
     }
-  }, [currentStepIndex])
+  }, [currentStepIndex, sessionStarted])
 
   const loadStepOptions = async () => {
     setLoading(true)
@@ -1345,6 +1669,12 @@ export default function App() {
     setDiceValue(null)
     
     const step = steps[currentStepIndex]
+    
+    // Calculate temperature and seed for this step
+    const temperature = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
+    const stepSeed = masterSeed ? masterSeed + currentStepIndex : undefined;
+    
+    console.log(`Generating ${step.id} with temperature: ${temperature}, seed: ${stepSeed}`);
     
     try {
       const response = await callAI(`${step.prompt} Generate exactly 6 options. Return as JSON with "label" (the option) and "explainer" (how to use it, under 150 chars) fields.`, {
@@ -1361,7 +1691,9 @@ export default function App() {
               }
             }
           }
-        }
+        },
+        temperature: temperature,
+        seed: stepSeed
       })
       
       const data = JSON.parse(response)
@@ -1444,6 +1776,10 @@ export default function App() {
     const vetoedOption = options[selectedIndex]
     const step = steps[currentStepIndex]
     
+    // Use same temperature but different seed for veto
+    const temperature = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
+    const vetoSeed = masterSeed ? masterSeed + currentStepIndex + 1000 : undefined;
+    
     try {
       const response = await callAI(`${step.prompt} Generate exactly 1 new option that is different from: "${vetoedOption.label}". Return as JSON with "label" and "explainer" (under 150 chars) fields.`, {
         schema: {
@@ -1451,7 +1787,9 @@ export default function App() {
             label: { type: "string" },
             explainer: { type: "string" }
           }
-        }
+        },
+        temperature: temperature,
+        seed: vetoSeed
       })
       
       const newOption = JSON.parse(response)
@@ -1609,6 +1947,11 @@ export default function App() {
     )
   }
 
+  // Show initial intention screen if session hasn't started
+  if (!sessionStarted) {
+    return <InitialIntention onComplete={handleIntentionComplete} />;
+  }
+  
   return (
     <NeoContainer>
       {/* Banner at top of page */}
