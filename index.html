@@ -1380,14 +1380,27 @@ export default function App() {
             </div>
           </div>
 
-          {/* Dice Interface */}
+          {/* Dice Interface / Next Button Area */}
           <div className="neo-flex neo-justify-center neo-mb-xl">
-            <NeoDice 
-              value={diceValue}
-              isRolling={rolling}
-              onClick={rollDice}
-              disabled={selectedIndex !== null || loading}
-            />
+            {selectedIndex !== null && !loading ? (
+              // Show Next Button when selection is made
+              <NeoButton 
+                onClick={proceedToNext}
+                variant="success"
+                size="lg"
+                style={{ fontSize: '20px', padding: '0 var(--space-xl)' }}
+              >
+                {currentStepIndex === steps.length - 1 ? '✨ VIEW BLUEPRINT' : 'NEXT STEP →'}
+              </NeoButton>
+            ) : (
+              // Show Dice when no selection or loading
+              <NeoDice 
+                value={diceValue}
+                isRolling={rolling}
+                onClick={rollDice}
+                disabled={selectedIndex !== null || loading}
+              />
+            )}
           </div>
 
           {/* Loading State */}
@@ -1488,19 +1501,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Next Button */}
-          {selectedIndex !== null && !loading && (
-            <div style={{ textAlign: 'center' }}>
-              <NeoButton 
-                onClick={proceedToNext}
-                variant="success"
-                size="lg"
-                style={{ width: '100%', fontSize: '20px' }}
-              >
-                {currentStepIndex === steps.length - 1 ? '✨ VIEW BLUEPRINT' : 'NEXT STEP →'}
-              </NeoButton>
-            </div>
-          )}
         </NeoCardContent>
       </NeoCard>
 
