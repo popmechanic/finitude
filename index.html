@@ -17,55 +17,47 @@
         --font-base: "Arial", "Helvetica", system-ui, sans-serif;
         --font-mono: "Courier New", "IBM Plex Mono", monospace;
         
-        /* HYPERPOP COLOR PALETTE - Based on Color Theory */
+        /* REFINED COLOR PALETTE - Sophisticated & Harmonious */
         
-        /* PRIMARY TRIAD - Electric Core Colors */
-        --color-electric-pink: #ff006e;     /* Barbie Pink - Primary dominant */
-        --color-cyber-lime: #8ecae6;        /* Brat Green variant - Cool complement */
-        --color-neon-purple: #7209b7;       /* Electric purple - Triadic harmony */
+        /* BASE PALETTE - Core Design Colors */
+        --ultra-violet: rgba(86, 71, 135, 1);      /* Deep purple - Primary brand */
+        --moonstone: rgba(109, 177, 191, 1);       /* Cool blue-green - Secondary */
+        --lavender-blush: rgba(255, 234, 236, 1);  /* Soft pink - Light accent */
+        --salmon-pink: rgba(243, 154, 157, 1);     /* Warm pink - Vibrant accent */
+        --oxford-blue: rgba(16, 25, 53, 1);        /* Deep navy - Dark foundation */
         
-        /* SECONDARY PALETTE - Pastels & Highlights */
-        --color-soft-cyan: #a2d2ff;         /* Pastel blue - Monochromatic with cyber-lime */
-        --color-peach-fuzz: #ffb3c6;        /* Soft pink - Tint of electric pink */
-        --color-lavender-mist: #cdb4db;     /* Pastel purple - Tint of neon purple */
+        /* SEMANTIC COLORS - Functional application */
+        --color-primary: var(--ultra-violet);      /* Primary actions & brand */
+        --color-secondary: var(--moonstone);       /* Secondary actions */
+        --color-accent: var(--salmon-pink);        /* Highlights & selections */
+        --color-warning: rgba(255, 193, 7, 1);     /* Warning yellow */
+        --color-danger: rgba(220, 53, 69, 1);      /* Error red */
+        --color-success: rgba(40, 167, 69, 1);     /* Success green */
         
-        /* ACCENT COLORS - Y2K Inspired */
-        --color-acid-yellow: #ffff3f;       /* Bright yellow - Split complement */
-        --color-chrome-silver: #bde0ff;     /* Metallic blue - Tech inspiration */
-        --color-matrix-green: #39ff14;      /* Cyber green - Digital aesthetic */
+        /* BACKGROUNDS - Layered surfaces */
+        --color-bg-primary: #ffffff;               /* Pure white for main content */
+        --color-bg-secondary: var(--lavender-blush); /* Soft pink for secondary surfaces */
+        --color-bg-tertiary: rgba(249, 250, 251, 1); /* Light gray for subtle areas */
+        --color-bg-dark: var(--oxford-blue);       /* Dark navy for contrast */
+        --color-bg-gradient: linear-gradient(135deg, var(--lavender-blush) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(109, 177, 191, 0.3) 100%);
         
-        /* SEMANTIC COLORS - Functional with hyperpop twist */
-        --color-primary: var(--color-electric-pink);
-        --color-secondary: var(--color-cyber-lime);
-        --color-accent: var(--color-neon-purple);
-        --color-warning: var(--color-acid-yellow);
-        --color-danger: #ff1744;            /* Hot pink red */
-        --color-success: var(--color-matrix-green);
+        /* TEXT COLORS - Optimal readability */
+        --color-text-primary: var(--oxford-blue);  /* Dark navy for main text */
+        --color-text-inverse: #ffffff;             /* White on dark backgrounds */
+        --color-text-muted: rgba(86, 71, 135, 0.6); /* Muted ultra-violet */
+        --color-text-accent: var(--ultra-violet);  /* Ultra-violet for emphasis */
         
-        /* BACKGROUNDS - Gradient foundations */
-        --color-bg-primary: #ffffff;        /* Pure white for contrast */
-        --color-bg-secondary: #f8f9ff;      /* Cool white with purple tint */
-        --color-bg-tertiary: var(--color-chrome-silver);  /* Tech-inspired surface */
-        --color-bg-dark: #1a0b2e;           /* Deep purple-black for drama */
-        --color-bg-gradient: linear-gradient(135deg, var(--color-peach-fuzz) 0%, var(--color-soft-cyan) 100%);
+        /* BORDERS & SHADOWS - Refined structure */
+        --color-border: var(--oxford-blue);        /* Navy borders for definition */
+        --color-border-accent: var(--ultra-violet); /* Purple borders for emphasis */
+        --border-width: 3px;                       /* Bold but refined borders */
+        --border-radius: 12px;                     /* Soft rounded corners */
         
-        /* TEXT COLORS - High contrast for readability */
-        --color-text-primary: #0d1117;      /* Almost black with blue undertone */
-        --color-text-inverse: #ffffff;      /* Pure white */
-        --color-text-muted: #6b7280;        /* Cool gray */
-        --color-text-accent: var(--color-neon-purple);  /* Purple for highlights */
-        
-        /* BORDERS & SHADOWS - Bold hyperpop style */
-        --color-border: #000000;            /* Black borders for maximum contrast */
-        --color-border-accent: var(--color-electric-pink);  /* Pink borders for emphasis */
-        --border-width: 3px;                /* Thick, bold borders */
-        --border-radius: 12px;              /* Rounded but not too soft */
-        
-        /* SHADOWS - Colored shadows for hyperpop effect */
+        /* SHADOWS - Sophisticated depth */
         --shadow-offset-x: 6px;
         --shadow-offset-y: 6px;
-        --shadow-color: var(--color-neon-purple);  /* Purple shadows instead of black */
-        --shadow-color-alt: var(--color-electric-pink);  /* Pink shadows for variety */
+        --shadow-color: var(--ultra-violet);       /* Ultra-violet primary shadows */
+        --shadow-color-alt: var(--moonstone);      /* Moonstone secondary shadows */
         --shadow-main: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--shadow-color);
         --shadow-alt: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--shadow-color-alt);
         --shadow-hover: 3px 3px 0px var(--shadow-color);
@@ -102,7 +94,7 @@
         position: relative;
       }
       
-      /* Hyperpop animated background pattern */
+      /* Sophisticated background pattern */
       #container::before {
         content: '';
         position: fixed;
@@ -111,11 +103,11 @@
         width: 100%;
         height: 100%;
         background-image: 
-          radial-gradient(circle at 20% 20%, var(--color-electric-pink)20 0%, transparent 20%),
-          radial-gradient(circle at 80% 80%, var(--color-cyber-lime)20 0%, transparent 20%),
-          radial-gradient(circle at 40% 60%, var(--color-neon-purple)20 0%, transparent 20%);
+          radial-gradient(circle at 20% 20%, var(--ultra-violet) 0%, transparent 20%),
+          radial-gradient(circle at 80% 80%, var(--moonstone) 0%, transparent 20%),
+          radial-gradient(circle at 40% 60%, var(--salmon-pink) 0%, transparent 20%);
         background-size: 200px 200px, 150px 150px, 180px 180px;
-        opacity: 0.03;
+        opacity: 0.05;
         pointer-events: none;
         z-index: -1;
       }
@@ -164,7 +156,7 @@
         pointer-events: none;
       }
       
-      /* Button Variants - Hyperpop Color Harmony */
+      /* Button Variants - Refined Color Harmony */
       .neo-btn-primary { 
         background-color: var(--color-primary); 
         color: var(--color-text-inverse); 
@@ -172,7 +164,7 @@
       }
       .neo-btn-secondary { 
         background-color: var(--color-secondary); 
-        color: var(--color-text-primary); 
+        color: var(--color-text-inverse); 
         box-shadow: var(--shadow-alt);
       }
       .neo-btn-accent { 
@@ -182,18 +174,18 @@
       }
       .neo-btn-warning { 
         background-color: var(--color-warning); 
-        color: var(--color-text-primary); 
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple);
+        color: var(--oxford-blue); 
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--ultra-violet);
       }
       .neo-btn-danger { 
         background-color: var(--color-danger); 
         color: var(--color-text-inverse); 
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-cyber-lime);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--moonstone);
       }
       .neo-btn-success { 
         background-color: var(--color-success); 
-        color: var(--color-text-primary); 
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-electric-pink);
+        color: var(--color-text-inverse); 
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--salmon-pink);
       }
       .neo-btn-neutral { 
         background-color: var(--color-bg-primary); 
@@ -263,12 +255,12 @@
         letter-spacing: 0.05em;
       }
       
-      .neo-badge-primary { background-color: var(--color-electric-pink); color: var(--color-text-inverse); }
-      .neo-badge-secondary { background-color: var(--color-cyber-lime); color: var(--color-text-primary); }
-      .neo-badge-accent { background-color: var(--color-neon-purple); color: var(--color-text-inverse); }
-      .neo-badge-neutral { background-color: var(--color-chrome-silver); color: var(--color-text-primary); }
-      .neo-badge-pastel { background-color: var(--color-peach-fuzz); color: var(--color-text-primary); }
-      .neo-badge-cyber { background-color: var(--color-matrix-green); color: var(--color-text-primary); }
+      .neo-badge-primary { background-color: var(--ultra-violet); color: var(--color-text-inverse); }
+      .neo-badge-secondary { background-color: var(--moonstone); color: var(--color-text-inverse); }
+      .neo-badge-accent { background-color: var(--salmon-pink); color: var(--color-text-inverse); }
+      .neo-badge-neutral { background-color: var(--color-bg-tertiary); color: var(--color-text-primary); }
+      .neo-badge-pastel { background-color: var(--lavender-blush); color: var(--color-text-primary); }
+      .neo-badge-dark { background-color: var(--oxford-blue); color: var(--color-text-inverse); }
       
       /* Input Component */
       .neo-input {
@@ -319,24 +311,24 @@
       }
       
       .neo-alert-warning {
-        background-color: var(--color-acid-yellow);
-        border-color: var(--color-neon-purple);
-        color: var(--color-text-primary);
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple);
+        background-color: var(--color-warning);
+        border-color: var(--ultra-violet);
+        color: var(--oxford-blue);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--ultra-violet);
       }
       
       .neo-alert-danger {
         background-color: var(--color-danger);
-        border-color: var(--color-cyber-lime);
+        border-color: var(--moonstone);
         color: var(--color-text-inverse);
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-cyber-lime);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--moonstone);
       }
       
       .neo-alert-success {
-        background-color: var(--color-matrix-green);
-        border-color: var(--color-electric-pink);
-        color: var(--color-text-primary);
-        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-electric-pink);
+        background-color: var(--color-success);
+        border-color: var(--salmon-pink);
+        color: var(--color-text-inverse);
+        box-shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--salmon-pink);
       }
       
       /* Typography */
@@ -889,17 +881,17 @@ function NeoContainer({ children, className = '', ...props }) {
   );
 }
 
-// Special Dice Component for hyperpop aesthetic
+// Special Dice Component for refined aesthetic
 function NeoDice({ value, isRolling, onClick, disabled }) {
   const getBackgroundColor = () => {
     if (disabled) return 'var(--color-bg-tertiary)';
-    if (isRolling) return 'var(--color-acid-yellow)';
+    if (isRolling) return 'var(--salmon-pink)';
     return 'var(--color-bg-primary)';
   };
   
   const getShadowColor = () => {
-    if (isRolling) return 'var(--color-electric-pink)';
-    return 'var(--color-neon-purple)';
+    if (isRolling) return 'var(--ultra-violet)';
+    return 'var(--moonstone)';
   };
   
   return (
@@ -1318,27 +1310,25 @@ export default function App() {
 
   return (
     <NeoContainer>
-      <NeoCard className="neo-mt-lg">
-        <NeoCardHeader>
-          <div className="neo-flex neo-flex-col neo-items-center">
-            <img 
-              src="banner.jpg" 
-              alt="Finitude Banner" 
-              style={{
-                width: '100%',
-                maxWidth: '600px',
-                marginBottom: 'var(--space-lg)',
-                border: 'var(--border-width) solid var(--color-border)',
-                borderRadius: 'var(--border-radius)',
-                boxShadow: 'var(--shadow-main)'
-              }}
-            />
-            <NeoHeading level="xl">⚡ FINITUDE ⚡</NeoHeading>
-            <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
-              CREATIVE CONSTRAINT GENERATOR
-            </div>
-          </div>
-        </NeoCardHeader>
+      {/* Banner at top of page */}
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: 'var(--space-xl)',
+        paddingTop: 'var(--space-md)',
+        display: 'flex',
+        justifyContent: 'center'
+      }}>
+        <img 
+          src="banner.png" 
+          alt="Finitude Banner" 
+          style={{
+            maxWidth: '600px',
+            height: 'auto'
+          }}
+        />
+      </div>
+      
+      <NeoCard>
         
         <NeoCardContent>
           {/* Veto Button */}
@@ -1366,11 +1356,11 @@ export default function App() {
                 style={{
                   flex: 1,
                   height: '12px',
-                  backgroundColor: idx === currentStepIndex ? 'var(--color-electric-pink)' : 
-                                   idx < currentStepIndex ? 'var(--color-matrix-green)' : 'var(--color-chrome-silver)',
+                  backgroundColor: idx === currentStepIndex ? 'var(--salmon-pink)' : 
+                                   idx < currentStepIndex ? 'var(--moonstone)' : 'var(--lavender-blush)',
                   border: '2px solid var(--color-border)',
                   borderRadius: 'var(--border-radius)',
-                  boxShadow: idx === currentStepIndex ? '2px 2px 0px var(--color-neon-purple)' : 'none',
+                  boxShadow: idx === currentStepIndex ? '2px 2px 0px var(--ultra-violet)' : 'none',
                   transition: 'all 0.3s ease',
                   position: 'relative'
                 }} 
@@ -1416,34 +1406,34 @@ export default function App() {
                 const getCardColors = () => {
                   if (selectedIndex === i) {
                     return {
-                      bg: 'var(--color-electric-pink)',
+                      bg: 'var(--salmon-pink)',
                       color: 'var(--color-text-inverse)',
                       badgeVariant: 'neutral',
-                      shadow: 'var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--color-neon-purple)'
+                      shadow: 'var(--shadow-offset-x) var(--shadow-offset-y) 0px var(--ultra-violet)'
                     };
                   }
                   if (selectedIndex !== null) {
                     return {
-                      bg: 'var(--color-chrome-silver)',
+                      bg: 'var(--color-bg-tertiary)',
                       color: 'var(--color-text-muted)',
                       badgeVariant: 'neutral',
                       shadow: 'var(--shadow-main)'
                     };
                   }
                   
-                  // Rotate through hyperpop colors for variety
+                  // Rotate through refined colors for variety
                   const colors = [
-                    { bg: 'var(--color-peach-fuzz)', variant: 'primary' },
-                    { bg: 'var(--color-soft-cyan)', variant: 'accent' },
-                    { bg: 'var(--color-lavender-mist)', variant: 'secondary' },
-                    { bg: 'var(--color-cyber-lime)', variant: 'primary' },
-                    { bg: 'var(--color-chrome-silver)', variant: 'accent' },
-                    { bg: 'var(--color-peach-fuzz)', variant: 'secondary' }
+                    { bg: 'var(--lavender-blush)', variant: 'primary' },
+                    { bg: 'var(--moonstone)', variant: 'secondary' },
+                    { bg: 'var(--color-bg-secondary)', variant: 'accent' },
+                    { bg: 'var(--ultra-violet)', variant: 'dark', textColor: 'var(--color-text-inverse)' },
+                    { bg: 'var(--salmon-pink)', variant: 'accent', textColor: 'var(--color-text-inverse)' },
+                    { bg: 'var(--lavender-blush)', variant: 'pastel' }
                   ];
                   const colorSet = colors[i % colors.length];
                   return {
                     bg: colorSet.bg,
-                    color: 'var(--color-text-primary)',
+                    color: colorSet.textColor || 'var(--color-text-primary)',
                     badgeVariant: colorSet.variant,
                     shadow: i % 2 === 0 ? 'var(--shadow-main)' : 'var(--shadow-alt)'
                   };
