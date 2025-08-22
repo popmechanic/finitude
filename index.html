@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Finitude - Creative Constraints for Songwriting</title>
     
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Finitude - Creative Constraints for Songwriting" />
+    <meta property="og:description" content="A creative constraint tool for songwriters. Generate random prompts across 7 categories to spark your next song." />
+    <meta property="og:image" content="https://finitude.music/banner.png" />
+    <meta property="og:type" content="website" />
+    
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon_io/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png">
@@ -2150,6 +2156,21 @@ Return as JSON with this exact structure:
   if (showResults) {
     return (
       <NeoContainer>
+        <div style={{
+          paddingTop: 'var(--space-md)',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          <img 
+            src="banner.png" 
+            alt="Finitude Banner" 
+            style={{
+              maxWidth: '600px',
+              height: 'auto'
+            }}
+          />
+        </div>
+        
         <NeoCard className="neo-mt-lg">
           <NeoCardHeader>
             <div className="neo-flex neo-justify-between neo-items-center">
