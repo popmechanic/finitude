@@ -1,3 +1,5 @@
+![Finitude Banner](banner.png)
+
 # FINITUDE
 
 *Creative constraints for songwriting*
@@ -6,7 +8,7 @@
 
 Modernity is walking us in empty circles. This is one way out. 
 
-**Finitude** uses chance and constraint to open new paths for songwriting. Click the dice to reveal one of six options. Each of the seven steps adds a fresh creative boundary—theme, story, imagery, structure, or sound. By the end, you'll have a unique framework to write from.
+**Finitude** uses chance and constraint to open new paths for songwriting. Click the dice to reveal one of six options. Each of the eight steps adds a fresh creative boundary—genre, theme, story, imagery, structure, or sound. By the end, you'll have a unique framework to write from.
 
 You get one veto per session to swap out any result, but otherwise the roll stands.
 
@@ -19,17 +21,18 @@ You get one veto per session to swap out any result, but otherwise the roll stan
 1. **Focus your intention** - Begin with a 5-second breathing ritual that seeds your session
 2. **Roll the dice** - Each step presents 6 AI-generated options
 3. **Accept the constraint** - What you roll is what you get (with one veto allowed)
-4. **Build your framework** - Seven steps create your complete songwriting blueprint
+4. **Build your framework** - Eight steps create your complete songwriting blueprint
 
-### The Seven Steps
+### The Eight Steps
 
-1. **Theme** - Core emotional territory (brief poetic fragments)
-2. **Symbol Pair** - Two resonant images joined by "+"
-3. **Mechanic** - Musical DNA to borrow (rhythm, harmony, texture)
-4. **Form** - Song structure notation
-5. **Color Mood** - Emotional palette with context
-6. **Harmony** - Chord progressions or harmonic approaches  
-7. **Production Move** - Specific production technique
+1. **Neo-Genre** - Invent a genre that doesn't exist yet
+2. **Theme** - Core emotional territory (brief poetic fragments)
+3. **Symbol Pair** - Two resonant images joined by "+"
+4. **Mechanic** - Musical DNA to borrow (rhythm, harmony, texture)
+5. **Form** - Song structure notation
+6. **Color Mood** - Emotional palette with context
+7. **Harmony** - Chord progressions or harmonic approaches  
+8. **Production Move** - Specific production technique
 
 ## About
 
@@ -67,7 +70,7 @@ The dice don't care about your preferences. The constraints don't bend to your c
 
 1. Open `index.html` in a modern browser or visit [the website](https://finitude.music/)
 2. Focus your creative intention
-3. Roll through the seven steps
+3. Roll through the eight steps
 4. Accept what comes
 5. Write your song
 

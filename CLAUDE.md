@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-**SONGFIELD** is a creative constraint tool for songwriters built as a single HTML file application. It generates random creative prompts across 7 categories (Theme, Symbol Pair, Mechanic, Form, Color Mood, Harmony, Production Move) using AI and dice-rolling mechanics.
+**SONGFIELD** is a creative constraint tool for songwriters built as a single HTML file application. It generates random creative prompts across 8 categories (Neo-Genre, Theme, Symbol Pair, Mechanic, Form, Color Mood, Harmony, Production Move) using AI and dice-rolling mechanics.
 
 ## Architecture
 
