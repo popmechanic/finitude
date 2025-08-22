@@ -1807,11 +1807,11 @@ async function fetchMasterSeed() {
     const hasQuota = await checkRandomOrgQuota();
     if (!hasQuota) {
       console.log('Using local master seed generation');
-      return Math.floor(Math.random() * 9000000) + 1000000;
+      return Math.floor(Math.random() * 2147483647);
     }
     
     const response = await fetch(
-      `${RANDOM_ORG_BASE}/integers/?num=1&min=1000000&max=9999999&col=1&base=10&format=plain&rnd=new`,
+      `${RANDOM_ORG_BASE}/integers/?num=1&min=0&max=2147483647&col=1&base=10&format=plain&rnd=new`,
       {
         method: 'GET',
         signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
@@ -1829,7 +1829,7 @@ async function fetchMasterSeed() {
   }
   
   // Fallback to local generation
-  return Math.floor(Math.random() * 9000000) + 1000000;
+  return Math.floor(Math.random() * 2147483647);
 }
 
 // Fetch temperature base (0.0-1.0 decimal)
@@ -1890,7 +1890,7 @@ export default function App() {
   const [vetoUsed, setVetoUsed] = useState(false)
   const [selections, setSelections] = useState({})
   const [rollHistory, setRollHistory] = useState([])
-  const [sessionSeed, setSessionSeed] = useState(Math.floor(Math.random() * 1000000))
+  const [sessionSeed, setSessionSeed] = useState(Math.floor(Math.random() * 2147483647))
   const [sessionTimestamp, setSessionTimestamp] = useState(new Date().toISOString())
   const [showResults, setShowResults] = useState(false)
   const [focusingIntention, setFocusingIntention] = useState(false)
@@ -2096,7 +2096,7 @@ WRONG format (do not use):
     const tempVariation = retryCount * 0.1;
     const baseTemp = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
     const temperature = Math.min(1.5, baseTemp + tempVariation);
-    const stepSeed = masterSeed ? masterSeed + currentStepIndex + (retryCount * 100) : undefined;
+    const stepSeed = masterSeed ? (masterSeed + currentStepIndex + (retryCount * 100)) % 2147483647 : undefined;
     
     console.log(`Generating ${step.id} with temperature: ${temperature}, seed: ${stepSeed}, retry: ${retryCount}`);
     
@@ -2321,7 +2321,7 @@ Return as JSON array with this exact structure:
     const tempVariation = retryCount * 0.15;
     const baseTemp = temperatureBase ? getStepTemperature(step.id, temperatureBase) : 0.9;
     const temperature = Math.min(1.5, baseTemp + tempVariation + 0.1); // Slightly higher temp for veto
-    const vetoSeed = masterSeed ? masterSeed + currentStepIndex + 1000 + (retryCount * 100) : undefined;
+    const vetoSeed = masterSeed ? (masterSeed + currentStepIndex + 1000 + (retryCount * 100)) % 2147483647 : undefined;
     
     try {
       console.log(`🔄 Generating veto replacement for ${step.id}, attempt ${retryCount + 1}`);
