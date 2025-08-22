@@ -2311,6 +2311,11 @@ Return as JSON array with this exact structure:
   }
 
   const useVeto = async (retryCount = 0) => {
+    // Handle onClick event object being passed
+    if (typeof retryCount !== 'number') {
+      retryCount = 0;
+    }
+    
     if (vetoUsed || selectedIndex === null) return
     if (retryCount === 0) {
       setVetoUsed(true)
@@ -2415,8 +2420,15 @@ Return as JSON with this exact structure:
       }
       
       // Validate the new option
-      if (!newOption.label || !newOption.explainer) {
-        throw new Error('Invalid option structure');
+      // For neo-genre, explainer can be empty
+      if (step.id === 'neogenre') {
+        if (!newOption.label) {
+          throw new Error('Invalid option structure - missing label');
+        }
+      } else {
+        if (!newOption.label || !newOption.explainer) {
+          throw new Error('Invalid option structure');
+        }
       }
       
       const newOptions = [...options]
