@@ -1077,27 +1077,35 @@ function InitialIntention({ onComplete }) {
     return (
       <div style={{
         minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         padding: 'var(--space-xl)'
       }}>
-        <NeoCard style={{ maxWidth: '700px', textAlign: 'center' }}>
-          <NeoCardContent>
-            <NeoHeading level="xl" style={{ marginBottom: 'var(--space-lg)' }}>
-              FINITUDE
-            </NeoHeading>
-            <p style={{ 
-              fontSize: '18px',
-              fontWeight: '500',
-              marginBottom: 'var(--space-xl)',
-              color: 'var(--ultra-violet)'
-            }}>
-              Creative constraints for songwriting
-            </p>
-            
-            <div style={{
+        {/* Banner at top of page */}
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: 'var(--space-xl)',
+          paddingTop: 'var(--space-md)',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          <img 
+            src="banner.png" 
+            alt="Finitude Banner" 
+            style={{
+              maxWidth: '600px',
+              height: 'auto'
+            }}
+          />
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <NeoCard style={{ maxWidth: '700px', textAlign: 'center' }}>
+            <NeoCardContent>
+              <div style={{
               padding: 'var(--space-lg)',
               background: 'var(--lavender-blush)',
               borderRadius: 'var(--border-radius)',
@@ -1196,17 +1204,18 @@ function InitialIntention({ onComplete }) {
               </div>
             </div>
             
-            <NeoButton 
-              onClick={() => setReady(true)}
-              variant="primary"
-              size="lg"
-              style={{ fontSize: '18px' }}
-              disabled={getSelectedCount() === 0}
-            >
-              BEGIN RITUAL
-            </NeoButton>
-          </NeoCardContent>
-        </NeoCard>
+              <NeoButton 
+                onClick={() => setReady(true)}
+                variant="primary"
+                size="lg"
+                style={{ fontSize: '18px' }}
+                disabled={getSelectedCount() === 0}
+              >
+                BEGIN RITUAL
+              </NeoButton>
+            </NeoCardContent>
+          </NeoCard>
+        </div>
       </div>
     );
   }
