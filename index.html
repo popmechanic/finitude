@@ -1811,7 +1811,7 @@ async function fetchMasterSeed() {
     }
     
     const response = await fetch(
-      `${RANDOM_ORG_BASE}/integers/?num=1&min=0&max=2147483647&col=1&base=10&format=plain&rnd=new`,
+      `${RANDOM_ORG_BASE}/integers/?num=1&min=0&max=1000000000&col=1&base=10&format=plain&rnd=new`,
       {
         method: 'GET',
         signal: AbortSignal.timeout(RANDOM_ORG_TIMEOUT)
