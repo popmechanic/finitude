@@ -2218,7 +2218,10 @@ Return as JSON array with this exact structure:
       console.log(`📊 Generated ${items.length} items for ${step.id}`);
       
       // Check if we got enough valid items
-      const validItems = items.filter(item => item && item.label && item.explainer);
+      // For neo-genre, explainer is empty string which is valid
+      const validItems = step.id === 'neogenre' 
+        ? items.filter(item => item && item.label !== undefined)
+        : items.filter(item => item && item.label && item.explainer);
       
       if (validItems.length < 6 && retryCount < 2) {
         console.warn(`⚠️ Only got ${validItems.length} valid items, retrying... (attempt ${retryCount + 2}/3)`);
