@@ -1196,6 +1196,7 @@ function InitialIntention({ onComplete }) {
   const [focusing, setFocusing] = useState(false);
   const [ready, setReady] = useState(false);
   const [selectedConstraints, setSelectedConstraints] = useState({
+    'neogenre': true,
     'theme': true,
     'symbol': true,
     'mechanic': true,
@@ -1207,6 +1208,10 @@ function InitialIntention({ onComplete }) {
   const timerRef = useRef();
   
   const constraintInfo = {
+    'neogenre': {
+      name: 'Neo-Genre',
+      description: 'Invent a genre that doesn\'t exist yet'
+    },
     'theme': { 
       name: 'Theme', 
       description: 'Core emotional territory to explore'
@@ -1859,13 +1864,14 @@ async function fetchTemperatureBase() {
 // Calculate step-specific temperature based on base value
 function getStepTemperature(stepId, temperatureBase) {
   const ranges = {
+    'neogenre': [0.9, 1.2],   // Most creative - needs novel combinations
     'theme': [0.9, 1.2],      // Most creative
-    'symbol-pair': [0.8, 1.1],     // Creative  
+    'symbol': [0.8, 1.1],     // Creative  
     'mechanic': [0.7, 0.9],   // Balanced
     'form': [0.6, 0.8],       // Structured
-    'color-mood': [0.8, 1.0],      // Descriptive
+    'color': [0.8, 1.0],      // Descriptive
     'harmony': [0.7, 0.9],    // Technical
-    'production-move': [0.7, 0.9]  // Technical
+    'production': [0.7, 0.9]  // Technical
   };
   
   const [min, max] = ranges[stepId] || [0.8, 1.0];
@@ -1900,6 +1906,25 @@ export default function App() {
   const initialIntentionTimerRef = useRef()
   
   const allSteps = [
+    {
+      id: 'neogenre',
+      name: 'Neo-Genre',
+      description: 'Invent a genre that doesn\'t exist yet',
+      prompt: `Generate 6 unique PREFIX words for creating new music genres. 
+
+REQUIREMENTS:
+- Single evocative words (3-10 letters)
+- Focus on: materials (glass, silk, velvet, rust), natural phenomena (smoke, frost, ember, mist), emotions (joy, dread, bliss), textures (rough, smooth), abstract concepts (mirror, void, prism, shadow)
+- AVOID common genre prefixes: hyper, cyber, post, neo, dark, death, doom, glitch, future, retro, synth, electro, techno, ambient, chill, lo-fi
+- Words should be atmospheric and suggestive, not literal music terms
+- Think poetic, unexpected, sensory
+
+Return as JSON with this exact structure:
+{
+  "prefixes": ["ember", "silk", "prism", "frost", "mirror", "dust"]
+}`,
+      suffixes: ['-core', '-grind', '-crust', '-violence', '-slam', '-step', '-wave', '-house', '-trance', '-beat', '-tek', '-bass', '-scape', '-drone', '-gaze', '-cloud', '-chill', '-punk', '-tronica', '-pop', '-hop', '-fusion', '-mix', '-cross', '-hybrid', '-matic', '-noize', '-clash', '-void', '-chaos', '-ritual']
+    },
     { 
       id: 'theme', 
       name: 'Theme', 
@@ -1971,6 +1996,14 @@ export default function App() {
   
   const getFallbackOptions = (stepId) => {
     const fallbacks = {
+      neogenre: [
+        { label: "velvetcore", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
+        { label: "glassstep", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
+        { label: "smokegaze", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
+        { label: "prismwave", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
+        { label: "dustpunk", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
+        { label: "mirrorhouse", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" }
+      ],
       theme: [
         { label: "archaeology of silence", explainer: "Excavating unspoken histories" },
         { label: "small betrayals", explainer: "Minor treacheries accumulating" },
@@ -2117,19 +2150,37 @@ Return as JSON array with this exact structure:
         // Try to parse as JSON
         data = typeof response === 'string' ? JSON.parse(response) : response;
         
-        // Handle different possible response structures
-        if (Array.isArray(data)) {
-          items = data.slice(0, 6);
-        } else if (data.items && Array.isArray(data.items)) {
-          items = data.items.slice(0, 6);
-        } else if (data.options && Array.isArray(data.options)) {
-          items = data.options.slice(0, 6);
-        } else if (data.label && data.explainer) {
-          // Single item response, wrap in array
-          items = [data];
+        // Special handling for neo-genre
+        if (step.id === 'neogenre') {
+          if (data.prefixes && Array.isArray(data.prefixes)) {
+            // Combine prefixes with random suffixes
+            items = data.prefixes.slice(0, 6).map(prefix => {
+              const randomSuffix = step.suffixes[Math.floor(Math.random() * step.suffixes.length)];
+              const genreName = prefix.toLowerCase() + randomSuffix;
+              return {
+                label: genreName,
+                explainer: `A genre that doesn't exist yet but should - imagine the sonic possibilities`
+              };
+            });
+          } else {
+            console.warn('Neo-genre response missing prefixes:', data);
+            items = [];
+          }
         } else {
-          console.warn('Unexpected response structure:', data);
-          items = [];
+          // Handle different possible response structures for other steps
+          if (Array.isArray(data)) {
+            items = data.slice(0, 6);
+          } else if (data.items && Array.isArray(data.items)) {
+            items = data.items.slice(0, 6);
+          } else if (data.options && Array.isArray(data.options)) {
+            items = data.options.slice(0, 6);
+          } else if (data.label && data.explainer) {
+            // Single item response, wrap in array
+            items = [data];
+          } else {
+            console.warn('Unexpected response structure:', data);
+            items = [];
+          }
         }
       } catch (parseError) {
         console.error('Failed to parse AI response:', parseError);
@@ -2276,7 +2327,23 @@ Return as JSON with this exact structure:
       
       let newOption;
       try {
-        newOption = typeof response === 'string' ? JSON.parse(response) : response;
+        const data = typeof response === 'string' ? JSON.parse(response) : response;
+        
+        // Special handling for neo-genre veto
+        if (step.id === 'neogenre') {
+          if (data.prefixes && Array.isArray(data.prefixes) && data.prefixes.length > 0) {
+            const prefix = data.prefixes[0];
+            const randomSuffix = step.suffixes[Math.floor(Math.random() * step.suffixes.length)];
+            newOption = {
+              label: prefix.toLowerCase() + randomSuffix,
+              explainer: `A genre that doesn't exist yet but should - imagine the sonic possibilities`
+            };
+          } else {
+            throw new Error('Invalid neo-genre response structure');
+          }
+        } else {
+          newOption = data;
+        }
       } catch (parseError) {
         console.error('Failed to parse veto response:', parseError);
         throw new Error('Invalid response format');
