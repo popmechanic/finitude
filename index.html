@@ -24,7 +24,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/html2canvas-pro@1.5.8/dist/html2canvas-pro.js"></script>
     <!-- html2canvas-pro handles modern CSS color formats like OKLCH natively -->
-    <link rel="stylesheet" href="https://esm.sh/use-vibes@latest/dist/components/ImgGen.css" />
     <style>
       /* HYPERPOP-INSPIRED DESIGN SYSTEM */
       :root {
@@ -1910,19 +1909,25 @@ export default function App() {
       id: 'neogenre',
       name: 'Neo-Genre',
       description: 'Invent a genre that doesn\'t exist yet',
-      prompt: `Generate 6 unique PREFIX words for creating new music genres. 
+      prompt: `IMPORTANT: Return ONLY prefix words, NOT full genre descriptions!
 
-REQUIREMENTS:
-- Single evocative words (3-10 letters)
-- Focus on: materials (glass, silk, velvet, rust), natural phenomena (smoke, frost, ember, mist), emotions (joy, dread, bliss), textures (rough, smooth), abstract concepts (mirror, void, prism, shadow)
-- AVOID common genre prefixes: hyper, cyber, post, neo, dark, death, doom, glitch, future, retro, synth, electro, techno, ambient, chill, lo-fi
-- Words should be atmospheric and suggestive, not literal music terms
-- Think poetic, unexpected, sensory
+Generate exactly 6 single-word PREFIXES for new music genres.
 
-Return as JSON with this exact structure:
-{
-  "prefixes": ["ember", "silk", "prism", "frost", "mirror", "dust"]
-}`,
+Each word should be:
+- A single word (3-10 letters)
+- Evocative and atmospheric
+- NOT a common genre prefix (avoid: hyper, cyber, post, neo, dark, etc.)
+
+Good examples: glass, silk, ember, frost, mirror, velvet, smoke, prism
+
+CRITICAL: Return ONLY a JSON object with a "prefixes" array containing 6 strings.
+Do NOT include "items" or "label" or "explainer" fields.
+
+Correct format:
+{"prefixes": ["word1", "word2", "word3", "word4", "word5", "word6"]}
+
+WRONG format (do not use):
+{"items": [...]}`,
       suffixes: ['-core', '-grind', '-crust', '-violence', '-slam', '-step', '-wave', '-house', '-trance', '-beat', '-tek', '-bass', '-scape', '-drone', '-gaze', '-cloud', '-chill', '-punk', '-tronica', '-pop', '-hop', '-fusion', '-mix', '-cross', '-hybrid', '-matic', '-noize', '-clash', '-void', '-chaos', '-ritual']
     },
     { 
@@ -2097,9 +2102,27 @@ Return as JSON with this exact structure:
       console.log(`🎲 Calling AI for ${step.id}...`);
       console.log('API Key available:', !!window.CALLAI_API_KEY);
       
-      // More explicit prompt to ensure we get 6 items
-      const prompt = `${step.prompt} 
+      // Different prompts and schemas for neo-genre vs other steps
+      let prompt, schema;
       
+      if (step.id === 'neogenre') {
+        // Neo-genre needs a special format - just prefixes
+        prompt = step.prompt; // Use the prompt as-is, it already has the right format
+        schema = {
+          properties: {
+            prefixes: {
+              type: "array",
+              minItems: 6,
+              maxItems: 6,
+              items: { type: "string", minLength: 3, maxLength: 10 }
+            }
+          },
+          required: ["prefixes"]
+        };
+      } else {
+        // Regular constraints need items with labels and explainers
+        prompt = `${step.prompt} 
+        
 IMPORTANT: You MUST generate exactly 6 unique options. 
 Return as JSON array with this exact structure:
 {
@@ -2112,9 +2135,7 @@ Return as JSON array with this exact structure:
     {"label": "option 6", "explainer": "description under 150 chars"}
   ]
 }`;
-      
-      const response = await callAI(prompt, {
-        schema: {
+        schema = {
           properties: {
             items: {
               type: "array",
@@ -2131,7 +2152,11 @@ Return as JSON array with this exact structure:
             }
           },
           required: ["items"]
-        },
+        };
+      }
+      
+      const response = await callAI(prompt, {
+        schema: schema,
         temperature: temperature,
         seed: stepSeed,
         // Explicitly pass API configuration
@@ -2299,8 +2324,41 @@ Return as JSON array with this exact structure:
     try {
       console.log(`🔄 Generating veto replacement for ${step.id}, attempt ${retryCount + 1}`);
       
-      const prompt = `${step.prompt} 
+      // Different prompts and schemas for neo-genre vs other steps
+      let prompt, schema;
       
+      if (step.id === 'neogenre') {
+        // For neo-genre veto, we need a single new prefix
+        const vetoedPrefix = vetoedOption.label.replace(/-(core|grind|crust|violence|slam|step|wave|house|trance|beat|tek|bass|scape|drone|gaze|cloud|chill|punk|tronica|pop|hop|fusion|mix|cross|hybrid|matic|noize|clash|void|chaos|ritual)$/, '');
+        prompt = `Generate exactly 1 NEW unique PREFIX word for creating a new music genre.
+        
+The word must be DIFFERENT from: "${vetoedPrefix}"
+
+REQUIREMENTS:
+- Single evocative word (3-10 letters)
+- Focus on: materials, natural phenomena, emotions, textures, abstract concepts
+- AVOID common genre prefixes and the word "${vetoedPrefix}"
+- Think poetic, unexpected, sensory
+
+Return as JSON:
+{
+  "prefixes": ["newword"]
+}`;
+        schema = {
+          properties: {
+            prefixes: {
+              type: "array",
+              minItems: 1,
+              maxItems: 1,
+              items: { type: "string", minLength: 3, maxLength: 10 }
+            }
+          },
+          required: ["prefixes"]
+        };
+      } else {
+        // Regular constraint veto
+        prompt = `${step.prompt} 
+        
 Generate exactly 1 NEW unique option that is DIFFERENT from: "${vetoedOption.label}". 
 The new option must be creative and distinct.
 Return as JSON with this exact structure:
@@ -2308,16 +2366,18 @@ Return as JSON with this exact structure:
   "label": "new unique option",
   "explainer": "description under 150 chars"
 }`;
-      
-      const response = await callAI(prompt, {
-        schema: {
+        schema = {
           type: "object",
           required: ["label", "explainer"],
           properties: {
             label: { type: "string", minLength: 1 },
             explainer: { type: "string", minLength: 1, maxLength: 150 }
           }
-        },
+        };
+      }
+      
+      const response = await callAI(prompt, {
+        schema: schema,
         temperature: temperature,
         seed: vetoSeed,
         apiKey: window.CALLAI_API_KEY || 'sk-vibes-proxy-managed',
