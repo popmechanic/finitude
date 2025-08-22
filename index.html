@@ -463,6 +463,139 @@
           transform: scale(1);
         }
       }
+      
+      /* Print-specific styles for compact single-page layout */
+      @media print {
+        /* Reset page margins and size */
+        @page {
+          size: letter;
+          margin: 0.5in;
+        }
+        
+        /* Hide non-essential elements */
+        .neo-container > div:first-child, /* Banner image */
+        button,
+        .neo-card-footer,
+        .neo-alert,
+        .neo-badge[style*="40px"], /* Dice roll badges */
+        [style*="gap: var(--space-xs)"] /* Dice roll container */
+        {
+          display: none !important;
+        }
+        
+        /* Reset base styles for print */
+        * {
+          color: black !important;
+          background: white !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+        }
+        
+        /* Compact container */
+        .neo-container {
+          padding: 0 !important;
+          max-width: 100% !important;
+        }
+        
+        /* Compact main card */
+        .neo-card {
+          border: 1px solid #ccc !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        /* Compact header */
+        .neo-card-header {
+          padding: 8px !important;
+          border-bottom: 1px solid #ccc !important;
+        }
+        
+        .neo-heading[level="xl"] {
+          font-size: 18px !important;
+          margin: 0 !important;
+        }
+        
+        /* Session info */
+        .neo-badge[variant="primary"] {
+          display: inline !important;
+          font-size: 14px !important;
+          padding: 2px 6px !important;
+          border: 1px solid #ccc !important;
+          margin-left: 8px !important;
+        }
+        
+        /* Timestamp */
+        [style*="fontSize: '12px'"] {
+          display: none !important; /* Hide timestamp to save space */
+        }
+        
+        /* Content area */
+        .neo-card-content {
+          padding: 8px !important;
+        }
+        
+        /* Constraint items grid - make more compact */
+        .neo-grid {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important; /* 2 columns for 7 items */
+          gap: 8px !important;
+          margin: 0 !important;
+        }
+        
+        /* Individual constraint cards */
+        .neo-grid .neo-card {
+          border-left: 3px solid #333 !important;
+          padding: 6px !important;
+          margin: 0 !important;
+          page-break-inside: avoid;
+        }
+        
+        /* Constraint headers */
+        .neo-grid .neo-card-header {
+          padding: 0 0 4px 0 !important;
+          border: none !important;
+          margin: 0 !important;
+        }
+        
+        .neo-heading[level="sm"] {
+          font-size: 11px !important;
+          font-weight: bold !important;
+          text-transform: uppercase !important;
+          margin: 0 !important;
+        }
+        
+        /* Constraint content */
+        .neo-grid .neo-card-content {
+          padding: 0 !important;
+        }
+        
+        /* Constraint label */
+        [style*="fontSize: '20px'"] {
+          font-size: 13px !important;
+          font-weight: bold !important;
+          margin-bottom: 2px !important;
+          line-height: 1.2 !important;
+        }
+        
+        /* Constraint explainer */
+        [style*="fontSize: '14px'"][style*="italic"] {
+          font-size: 10px !important;
+          line-height: 1.3 !important;
+          font-style: normal !important;
+          color: #666 !important;
+        }
+        
+        /* Ensure single page */
+        body {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        /* Force page breaks */
+        .neo-container {
+          page-break-after: avoid !important;
+        }
+      }
     </style>
     <script>
       const activeRequests = new Set();
@@ -944,6 +1077,79 @@ function NeoAlert({ children, variant = 'default', title, className = '', ...pro
 function NeoContainer({ children, className = '', ...props }) {
   return (
     <div className={`neo-container ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+// Accordion Component (neobrutalism style)
+function NeoAccordion({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-accordion ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function NeoAccordionItem({ children, className = '', ...props }) {
+  return (
+    <div className={`neo-accordion-item ${className}`} {...props}>
+      {children}
+    </div>
+  );
+}
+
+function NeoAccordionTrigger({ children, isOpen, onClick, className = '', ...props }) {
+  return (
+    <button
+      className={`neo-accordion-trigger ${className}`}
+      onClick={onClick}
+      style={{
+        width: '100%',
+        padding: 'var(--space-md)',
+        backgroundColor: isOpen ? 'var(--color-primary)' : 'var(--color-bg-secondary)',
+        color: isOpen ? 'white' : 'var(--color-text)',
+        border: 'var(--border-width) solid var(--color-border)',
+        borderRadius: 'var(--border-radius)',
+        fontFamily: 'var(--font-heading)',
+        fontWeight: '900',
+        fontSize: '14px',
+        textAlign: 'left',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        transition: 'all 0.2s ease',
+        boxShadow: isOpen ? 'var(--shadow-sm)' : 'none',
+        marginBottom: isOpen ? '0' : 'var(--space-xs)'
+      }}
+      {...props}
+    >
+      <span>{children}</span>
+      <span style={{
+        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+        transition: 'transform 0.2s ease'
+      }}>▼</span>
+    </button>
+  );
+}
+
+function NeoAccordionContent({ children, isOpen, className = '', ...props }) {
+  if (!isOpen) return null;
+  
+  return (
+    <div 
+      className={`neo-accordion-content ${className}`}
+      style={{
+        padding: 'var(--space-md)',
+        backgroundColor: 'var(--color-bg-tertiary)',
+        border: 'var(--border-width) solid var(--color-border)',
+        borderTop: 'none',
+        borderRadius: '0 0 var(--border-radius) var(--border-radius)',
+        marginBottom: 'var(--space-sm)'
+      }}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -1674,8 +1880,8 @@ export default function App() {
   const [vetoUsed, setVetoUsed] = useState(false)
   const [selections, setSelections] = useState({})
   const [rollHistory, setRollHistory] = useState([])
-  const [sessionSeed] = useState(Math.floor(Math.random() * 1000000))
-  const [sessionTimestamp] = useState(new Date().toISOString())
+  const [sessionSeed, setSessionSeed] = useState(Math.floor(Math.random() * 1000000))
+  const [sessionTimestamp, setSessionTimestamp] = useState(new Date().toISOString())
   const [showResults, setShowResults] = useState(false)
   const [focusingIntention, setFocusingIntention] = useState(false)
   const [intentionCountdown, setIntentionCountdown] = useState(3)
@@ -1684,6 +1890,8 @@ export default function App() {
   const [masterSeed, setMasterSeed] = useState(null)
   const [temperatureBase, setTemperatureBase] = useState(null)
   const [selectedConstraints, setSelectedConstraints] = useState(null)
+  const [viewingSessionId, setViewingSessionId] = useState(null)
+  const [openAccordionItems, setOpenAccordionItems] = useState({})
   const animationRef = useRef()
   const intentionTimerRef = useRef()
   const initialIntentionTimerRef = useRef()
@@ -2152,6 +2360,57 @@ Return as JSON with this exact structure:
   }
 
   const { docs: savedSessions } = useLiveQuery("type", { key: "finitude-session", limit: 10, descending: true })
+  
+  // Generate a meaningful name from blueprint content
+  const generateBlueprintName = (session) => {
+    if (!session.selections) return `Session #${session.seed}`;
+    
+    // Try to create a name from theme and symbol pair
+    const theme = session.selections.theme?.label || '';
+    const symbol = session.selections.symbol?.label || '';
+    
+    if (theme && symbol) {
+      // Extract key words from theme (first few words)
+      const themeWords = theme.split(' ').slice(0, 3).join(' ');
+      // Symbol pair is usually formatted as "X + Y"
+      const symbolFirst = symbol.split('+')[0]?.trim();
+      
+      if (symbolFirst) {
+        return `${themeWords} / ${symbolFirst}`;
+      }
+      return themeWords;
+    }
+    
+    // Fallback to other elements
+    const color = session.selections.color?.label;
+    if (color) return `${color} Session`;
+    
+    return `Session #${session.seed}`;
+  }
+  
+  // View a saved session
+  const viewSavedSession = (sessionId) => {
+    const session = savedSessions.find(s => s._id === sessionId);
+    if (session) {
+      setViewingSessionId(sessionId);
+      setShowResults(true);
+      setSelections(session.selections || {});
+      setRollHistory(session.rollHistory || []);
+      setSessionSeed(session.seed);
+      setSessionTimestamp(session.timestamp);
+      setSelectedConstraints(session.selectedConstraints || {});
+      setSessionStarted(false);
+      setInitialIntention(false);
+    }
+  }
+  
+  // Toggle accordion item
+  const toggleAccordionItem = (itemId) => {
+    setOpenAccordionItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  }
 
   if (showResults) {
     return (
@@ -2206,7 +2465,7 @@ Return as JSON with this exact structure:
             </div>
 
             <div className="neo-grid neo-grid-cols-1" style={{ gap: 'var(--space-lg)' }}>
-              {steps.map(step => {
+              {steps.filter(s => !selectedConstraints || selectedConstraints[s.id]).map(step => {
                 const item = selections[step.id]
                 if (!item) return null
                 
@@ -2485,31 +2744,81 @@ Return as JSON with this exact structure:
         </NeoCardContent>
       </NeoCard>
 
-      {/* Recent Sessions */}
+      {/* Recent Blueprints */}
       {savedSessions.length > 0 && (
         <NeoCard className="neo-mt-lg">
           <NeoCardHeader>
-            <NeoHeading level="md">🕐 RECENT SESSIONS</NeoHeading>
+            <NeoHeading level="md">📚 RECENT BLUEPRINTS</NeoHeading>
           </NeoCardHeader>
           <NeoCardContent>
-            <div className="neo-grid neo-grid-cols-2">
-              {savedSessions.slice(0, 6).map(sess => (
-                <NeoBadge 
-                  key={sess._id} 
-                  variant="secondary"
-                  style={{
-                    justifyContent: 'space-between',
-                    padding: 'var(--space-md)',
-                    fontSize: '14px'
-                  }}
-                >
-                  <span style={{ fontWeight: '900' }}>#{sess.seed}</span>
-                  <span style={{ fontSize: '12px', opacity: 0.7 }}>
-                    {new Date(sess.completedAt || sess.timestamp).toLocaleDateString()}
-                  </span>
-                </NeoBadge>
-              ))}
-            </div>
+            <NeoAccordion>
+              {savedSessions.slice(0, 5).map(sess => {
+                const blueprintName = generateBlueprintName(sess);
+                const isOpen = openAccordionItems[sess._id];
+                const constraintCount = sess.selectedConstraints ? 
+                  Object.values(sess.selectedConstraints).filter(v => v).length : 7;
+                
+                return (
+                  <NeoAccordionItem key={sess._id}>
+                    <NeoAccordionTrigger 
+                      isOpen={isOpen}
+                      onClick={() => toggleAccordionItem(sess._id)}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                        <span>{blueprintName}</span>
+                        <span style={{ 
+                          fontSize: '11px', 
+                          opacity: 0.7,
+                          fontWeight: 'normal'
+                        }}>
+                          {new Date(sess.completedAt || sess.timestamp).toLocaleDateString()} • {constraintCount} constraints
+                        </span>
+                      </div>
+                    </NeoAccordionTrigger>
+                    <NeoAccordionContent isOpen={isOpen}>
+                      {sess.selections && (
+                        <div style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          gap: 'var(--space-sm)' 
+                        }}>
+                          {Object.entries(sess.selections).map(([key, value]) => {
+                            const step = allSteps.find(s => s.id === key);
+                            if (!step || !value) return null;
+                            return (
+                              <div key={key} style={{
+                                borderLeft: '3px solid var(--color-primary)',
+                                paddingLeft: 'var(--space-sm)'
+                              }}>
+                                <div style={{ 
+                                  fontSize: '11px', 
+                                  fontWeight: 'bold',
+                                  textTransform: 'uppercase',
+                                  marginBottom: '2px'
+                                }}>
+                                  {step.name}
+                                </div>
+                                <div style={{ fontSize: '13px', fontWeight: '600' }}>
+                                  {value.label}
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <NeoButton 
+                            onClick={() => viewSavedSession(sess._id)}
+                            variant="primary"
+                            size="sm"
+                            style={{ marginTop: 'var(--space-sm)' }}
+                          >
+                            📖 View Full Blueprint
+                          </NeoButton>
+                        </div>
+                      )}
+                    </NeoAccordionContent>
+                  </NeoAccordionItem>
+                );
+              })}
+            </NeoAccordion>
           </NeoCardContent>
         </NeoCard>
       )}
