@@ -1819,7 +1819,8 @@ async function fetchMasterSeed() {
     );
     
     if (response.ok) {
-      const seed = parseInt(await response.text().trim());
+      const text = await response.text();
+      const seed = parseInt(text.trim());
       console.log('Master seed from Random.org:', seed);
       return seed;
     }
@@ -1848,7 +1849,8 @@ async function fetchTemperatureBase() {
     );
     
     if (response.ok) {
-      const temp = parseFloat(await response.text().trim());
+      const text = await response.text();
+      const temp = parseFloat(text.trim());
       console.log('Temperature base from Random.org:', temp);
       return temp;
     }
@@ -2002,12 +2004,12 @@ WRONG format (do not use):
   const getFallbackOptions = (stepId) => {
     const fallbacks = {
       neogenre: [
-        { label: "velvetcore", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
-        { label: "glassstep", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
-        { label: "smokegaze", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
-        { label: "prismwave", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
-        { label: "dustpunk", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" },
-        { label: "mirrorhouse", explainer: "A genre that doesn't exist yet but should - imagine the sonic possibilities" }
+        { label: "velvetcore", explainer: "" },
+        { label: "glassstep", explainer: "" },
+        { label: "smokegaze", explainer: "" },
+        { label: "prismwave", explainer: "" },
+        { label: "dustpunk", explainer: "" },
+        { label: "mirrorhouse", explainer: "" }
       ],
       theme: [
         { label: "archaeology of silence", explainer: "Excavating unspoken histories" },
@@ -2184,7 +2186,7 @@ Return as JSON array with this exact structure:
               const genreName = prefix.toLowerCase() + randomSuffix;
               return {
                 label: genreName,
-                explainer: `A genre that doesn't exist yet but should - imagine the sonic possibilities`
+                explainer: '' // No explainer needed for neo-genre
               };
             });
           } else {
@@ -2396,7 +2398,7 @@ Return as JSON with this exact structure:
             const randomSuffix = step.suffixes[Math.floor(Math.random() * step.suffixes.length)];
             newOption = {
               label: prefix.toLowerCase() + randomSuffix,
-              explainer: `A genre that doesn't exist yet but should - imagine the sonic possibilities`
+              explainer: '' // No explainer needed for neo-genre
             };
           } else {
             throw new Error('Invalid neo-genre response structure');
@@ -2477,7 +2479,11 @@ Return as JSON with this exact structure:
     steps.forEach(step => {
       const item = selections[step.id]
       if (item) {
-        markdown += `## ${step.name}\n**${item.label}**\n_${item.explainer}_\n\n`
+        if (step.id === 'neogenre') {
+          markdown += `## ${step.name}\n**${item.label}**\n\n`
+        } else {
+          markdown += `## ${step.name}\n**${item.label}**\n_${item.explainer}_\n\n`
+        }
       }
     })
     
@@ -2617,13 +2623,15 @@ Return as JSON with this exact structure:
                       }}>
                         {item.label}
                       </div>
-                      <div style={{ 
-                        fontSize: '14px',
-                        color: 'var(--color-text-muted)',
-                        fontStyle: 'italic'
-                      }}>
-                        {item.explainer}
-                      </div>
+                      {step.id !== 'neogenre' && (
+                        <div style={{ 
+                          fontSize: '14px',
+                          color: 'var(--color-text-muted)',
+                          fontStyle: 'italic'
+                        }}>
+                          {item.explainer}
+                        </div>
+                      )}
                     </NeoCardContent>
                   </NeoCard>
                 )
